@@ -2,9 +2,11 @@ import struct
 from command import *
 
 class Player:
-    def __init__(self, name):
+    def __init__(self, name, Game):
         self._name = name
         self._species = None
+        self._game = Game
+        self._game.send_names(name)
 
 
     def assign_team(self, species):
