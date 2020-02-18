@@ -1,7 +1,7 @@
-from client import Player
-from command import Game
+from player import Player
+from game import Game
 import itertools
-import time 
+import time
 
 def manhattan_dist(d1,d2):
     return ((d1[0]-d2[0])**2+(d1[1]-d2[1])**2)**(0.5)

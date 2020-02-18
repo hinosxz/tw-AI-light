@@ -1,10 +1,10 @@
-from command import Game
-from client import Player
+from game import Game
+from player import Player
 from h1 import *
 import time
 
 if __name__ == "__main__":
-    Game = Game('192.168.56.1')
+    Game = Game('127.0.0.1')
     Player = Player('barth', Game)
     print(Game._type)
     while True:

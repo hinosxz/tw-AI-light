@@ -1,38 +1,6 @@
-from client import *
 import struct
 import socket
 import numpy as np
-
-
-def load_map(L,shape):
-    L = L[3:]
-    nb_element = L.pop(0)
-    M = np.zeros((*shape,3))
-    for i in range(0,len(L),5):
-        M[L[i+1],L[i]] = L[i+2:i+5]
-    return nb_element, M
-
-def load_static(L):
-    # shape
-    L = L[3:]
-    shape = L.pop(0), L.pop(0)
-    # houses
-    L = L[3:]
-    nb_house = L.pop(0)
-    houses_dict = {}
-    for i in range(nb_house):
-        houses_dict[i] = L.pop(0), L.pop(0)
-        houses_dict[i] = houses_dict[i][1], houses_dict[i][0]
-    # point of departure
-    L = L[3:]
-    depart = L.pop(0), L.pop(0)
-    depart = depart[1],depart[0]
-
-    nb_element, map = None, None
-    if L!=[]:
-        nb_element, map = load_map(L, shape)
-    return nb_element, map, shape, houses_dict, depart
-
 
 class Game:
 
@@ -75,13 +43,11 @@ class Game:
                         opponent_dict[(i,j)] = cell[2]
         return opponent_dict
 
-    def send_names(self, name):
+    def send_name(self, name):
         msg_to_send = b'NME'
         msg_to_send += struct.pack("B", len(name))
         msg_to_send += name.encode()
         self._sock.send(msg_to_send)
-        msg_recu = self.receive_message()
-        _, self._map, self._shape, self._houses, self._depart = load_static(msg_recu)
 
     def send_move(self, moves_dict, type):
         msg_to_send = b'MOV'
@@ -102,15 +68,70 @@ class Game:
             msg_to_send += struct.pack('B', int(moves_dict[key]['to_position'][0]))
         self._sock.send(msg_to_send)
 
-    def receive_message(self):
-        ## TO DO put the end and things like that here
-        return list(self._sock.recv(1024))
-
     def update_map(self):
-        msg_recu = self.receive_message()[3:]
-        nb_changes = msg_recu.pop(0)
+        upd_code = self._sock.recv(3).decode()
+        assert upd_code == 'UPD'
+        nb_changes = struct.unpack('B', self._sock.recv(1))[0]
         for i in range(nb_changes):
-            x, y, nb_humans, nb_vampires, nb_werewolves = msg_recu[5*i:5*(i+1)]
-            self._map[y, x] = [nb_humans, nb_vampires, nb_werewolves]
+            x_case = struct.unpack('B', self._sock.recv(1))[0]
+            y_case = struct.unpack('B', self._sock.recv(1))[0]
+            nb_humans = struct.unpack('B', self._sock.recv(1))[0]
+            nb_vampires = struct.unpack('B', self._sock.recv(1))[0]
+            nb_werewolves = struct.unpack('B', self._sock.recv(1))[0]
+            self._map[y_case, x_case] = [nb_humans, nb_vampires, nb_werewolves]
+
+    def _load_set(self):
+        set_code = self._sock.recv(3).decode()
+        assert set_code == 'SET'
+        n = struct.unpack('B', self._sock.recv(1))[0]
+        m = struct.unpack('B', self._sock.recv(1))[0]
+        self._shape = n, m
+
+    def _load_humans(self):
+        human_code = self._sock.recv(3).decode()
+        assert human_code == 'HUM'
+        n_maison = struct.unpack('B', self._sock.recv(1))[0]
+        list_coordonnees = []
+        for _ in range(n_maison):
+            x = struct.unpack('B', self._sock.recv(1))[0]
+            y = struct.unpack('B', self._sock.recv(1))[0]
+            list_coordonnees.append((x, y))
+        self._houses = list_coordonnees
+
+    def _load_home(self):
+        home_code = self._sock.recv(3).decode()
+        assert home_code == 'HME'
+        x_depart = struct.unpack('B', self._sock.recv(1))[0]
+        y_depart = struct.unpack('B', self._sock.recv(1))[0]
+        self._depart = y_depart, x_depart
+
+    def _load_map(self):
+        map_code = self._sock.recv(3).decode()
+        assert map_code == 'MAP'
+        n_map = struct.unpack('B', self._sock.recv(1))[0]
+        self._map = np.zeros((*self._shape,3))
+        for _ in range(n_map):
+            x_case = struct.unpack('B', self._sock.recv(1))[0]
+            y_case = struct.unpack('B', self._sock.recv(1))[0]
+            nb_humans = struct.unpack('B', self._sock.recv(1))[0]
+            nb_vampires = struct.unpack('B', self._sock.recv(1))[0]
+            nb_werewolves = struct.unpack('B', self._sock.recv(1))[0]
+            print("Sur la case {}, il y a {} humain(s), {} vampire(s) et {} loups garous".format((x_case, y_case), nb_humans, nb_vampires, nb_werewolves))
+            self._map[y_case, x_case] = [nb_humans, nb_vampires, nb_werewolves]
+
+    def _load_initial_parameters(self):
+        # Getting the information about the map (SET)
+        self._load_set()
+        # Récupération des humains à setup sur la grille
+        self._load_humans()
+        # Case de départ
+        self._load_home()
+        # Get Map
+        self._load_map()
+
+
+
+
+
 
 
