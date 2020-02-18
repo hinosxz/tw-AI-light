@@ -31,6 +31,9 @@ class Game:
     def get_map(self):
         return self._map
 
+    def get_shape(self):
+        return self._shape
+        
     def get_opponent_position(self):
         opponent_dict = {}
         for i,row in enumerate(self._map):
