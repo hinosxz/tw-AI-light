@@ -1,6 +1,6 @@
 import struct
-from game import Game
-from species import Species
+from .game import Game
+from .species import Species
 import time
 
 class Player:

@@ -1,5 +1,3 @@
-from player import Player
-from game import Game
 import itertools
 import time
 
