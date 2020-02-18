@@ -128,10 +128,3 @@ class Game:
         self._load_home()
         # Get Map
         self._load_map()
-
-
-
-
-
-
-
