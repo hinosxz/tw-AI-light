@@ -4,6 +4,19 @@ import time
 def manhattan_dist(d1,d2):
     return ((d1[0]-d2[0])**2+(d1[1]-d2[1])**2)**(0.5)
 
+def distance_nb_coups(pos_1, pos_2):
+    # On calcule le nombre de coups à faire en diagonale
+    x_init, y_init = pos_1
+    x_final, y_final = pos_2
+    nb_coups_diagonale = min(abs(x_init - x_final), abs(y_init - y_final))
+    # On calcule le nombre de coups à faire en ligne
+    sign = lambda a: 1 if a>0 else -1 if a<0 else 0
+    x_init -= nb_coups_diagonale * sign(x_init - x_final)
+    y_init -= nb_coups_diagonale * sign(y_init - y_final)
+    nb_coups_ligne = max(abs(x_init - x_final), abs(y_init - y_final))
+    return nb_coups_diagonale + nb_coups_ligne
+    
+
 def heuristic1(Player, Game):
     moves_dict = {}
     w0,w1,w2 = (1,1,1)
