@@ -11,7 +11,7 @@ def heuristic1(Player, Game):
     w0,w1,w2 = (1,1,1)
     opponent_dict = Game.get_opponent_position()
     humans_dict = Game.get_humans_dict()
-    for i,group in enumerate(Player.get_species().groups()):
+    for i,group in enumerate(Player.get_species().get_groups()):
         position_x, position_y = group.get_position()
         max_value = -100000
         max_move = (0,0)

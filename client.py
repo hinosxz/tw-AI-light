@@ -8,7 +8,8 @@ class Player:
         self._species = None
         self._game = Game
         self._game.send_names(name)
-        time.sleep(1)
+        # time.sleep(1)
+        print(self._game.get_map())
         if self._game.get_map() is not None:
             # assign the species to the player
             depart = self._game.get_depart()
@@ -41,6 +42,7 @@ class Player:
 
 
 class Species:
+
     def __init__(self, type, total_nb, position_x, position_y):
         self._type = type
         self._groups = [Group(total_nb, position_x, position_y)]
@@ -49,23 +51,23 @@ class Species:
     def get_type(self):
         return self._type
 
-    def groups(self):
+    def get_groups(self):
         return self._groups
 
     def get_group(self, x, y):
-        for group in self.groups():
+        for group in self.get_groups():
             if group.get_position() == [x,y]:
                 return group
         raise ValueError('No group is on the position ({},{})'.format(x,y))
 
-    def divise(self, group_1, nb1, nb2):
-        group_1.change_size(nb1)
-        self._groups.append(Group(nb2, group_1.get_position()[0], group_1.get_position()[1]))
+    # def divise(self, group_1, nb1, nb2):
+    #     group_1.change_size(nb1)
+    #     self._groups.append(Group(nb2, group_1.get_position()[0], group_1.get_position()[1]))
 
-    def merge(self, group_1, group_2):
-        self._groups.remove(group_1)
-        self._groups.remove(group_2)
-        self._groups.append(Group(group_1.get_size() + group_2.get_size(), group_1.get_position()[0], group_1.get_position()[1]))
+    # def merge(self, group_1, group_2):
+    #     self._groups.remove(group_1)
+    #     self._groups.remove(group_2)
+    #     self._groups.append(Group(group_1.get_size() + group_2.get_size(), group_1.get_position()[0], group_1.get_position()[1]))
 
 class Group:
     def __init__(self, size, position_x, position_y):

@@ -10,15 +10,7 @@ def load_map(L,shape):
     M = np.zeros((*shape,3))
     for i in range(0,len(L),5):
         M[L[i+1],L[i]] = L[i+2:i+5]
-    return nb_element,M
-
-def update_map(map,L,is_vampr):
-    L = L[3:]
-    nb_changes = L.pop(0)
-    for i in range(0,len(L),5):
-        map[L[i+3]-1,L[i+4]-1][is_vampr] = map[L[i]-1,L[i+1]-1][is_vampr] + L[i+2]
-        map[L[i]-1,L[i+1]-1][is_vampr] -= L[i+2]
-    return map
+    return nb_element, M
 
 def load_static(L):
     # shape
@@ -115,32 +107,10 @@ class Game:
         return list(self._sock.recv(1024))
 
     def update_map(self):
-        msg_recu = self.receive_message()
-        if self._type == 'wolf':
-            self._map = update_map(self._map, msg_recu,2)
-        elif self._type == 'vampire':
-            self._map = update_map(self._map, msg_recu,1)
-
-
-    
-class Command:
-    def __init__(self):
-        pass
-
-# class MOV(Command):
-#     def __init__(self, sock, Species, **kwargs):
-#         if len(kwargs)==0:
-#             raise ValueError('You must move at least one group')
-#         msg_to_send =  b'MOV'
-#         for number in kwargs.keys():
-#             for group in Species.groups():
-#                 if number == group.get_size():
-#                     try: 
-#                         group.move(kwargs[number])
-#                     except:
-#                         pass
-#                 elif number 
-#         sock.send(msg_to_send)
-
+        msg_recu = self.receive_message()[3:]
+        nb_changes = msg_recu.pop(0)
+        for i in range(nb_changes):
+            x, y, nb_humans, nb_vampires, nb_werewolves = msg_recu[5*i:5*(i+1)]
+            self._map[y, x] = [nb_humans, nb_vampires, nb_werewolves]
 
 
