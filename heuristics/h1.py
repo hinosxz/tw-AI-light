@@ -18,10 +18,10 @@ def distance_nb_coups(pos_1, pos_2):
     
 
 def heuristic1(Player, Game):
-    moves_dict = {}
+    moves_list = []
     w0,w1,w2 = (1,1,1)
-    opponent_dict = Game.get_opponent_position()
-    humans_dict = Game.get_humans_dict()
+    opponent_dict = Game.get_opponent_positions()
+    humans_dict = Game.get_humans_positions()
     for i,group in enumerate(Player.get_species().get_groups()):
         position_x, position_y = group.get_position()
         max_value = -100000
@@ -29,7 +29,7 @@ def heuristic1(Player, Game):
         for move in itertools.product([-1,0,1],[-1,0,1]):
             value = 0
             if move[0]!=0 or move[1]!=0:
-                group.move(position_x + move[0], position_y + move[1])
+                group.move([position_x + move[0], position_y + move[1]])
                 d_0, n_0 = group.get_position(), group.get_size()
                 for op_group in opponent_dict.keys():
                     n_1, d_1 = opponent_dict[op_group], op_group
@@ -53,7 +53,7 @@ def heuristic1(Player, Game):
                 if value > max_value:
                     max_value = value
                     max_move = move
-                group.move(position_x,position_y)
+                group.move([position_x, position_y])
         time.sleep(1)
-        moves_dict[i] = {'from_position':[position_x,position_y],'number':n_0,'to_position':[position_x + max_move[0],position_y + max_move[1]]}
-    return moves_dict
+        moves_list.append({'from_position':[position_x,position_y],'number':n_0,'to_position':[position_x + max_move[0],position_y + max_move[1]]})
+    return moves_list

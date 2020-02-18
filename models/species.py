@@ -1,11 +1,22 @@
 from .group import Group
 
 class Species:
+    """
+    Cette classe représente une espèce, controllée par un Player.
+
+    Elle contient un attribue groups qui contient l'ensemble des groupes d'une même espèce
+
+    Paramètres
+    ----------
+    type : string
+        type de l'espèce
+    groups : list of Group
+        liste contenant les différents groupes de l'espèce
+    """
 
     def __init__(self, type, total_nb, position_x, position_y):
         self._type = type
         self._groups = [Group(total_nb, position_x, position_y)]
-        self._total_nb = total_nb
 
     def get_type(self):
         return self._type
@@ -13,9 +24,17 @@ class Species:
     def get_groups(self):
         return self._groups
 
-    def get_group(self, x, y):
+    def get_group(self, coordinates):
+        """ 
+        Renvoie un groupe situé à une coordonnée particulière 
+
+        Paramètres
+        ----------
+        coordinates : list
+            list de taille 2 contenant les coordonnées du groupe souhaité
+        """
         for group in self.get_groups():
-            if group.get_position() == [x,y]:
+            if group.get_position() == coordinates:
                 return group
         raise ValueError('No group is on the position ({},{})'.format(x,y))
 
