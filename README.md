@@ -9,3 +9,8 @@ virtualenv venv
 source venv/bin/activate
 pip install -r requirements.txt
 ```
+
+To enable pre-commit hooks and benefit from black auto-formatting
+```
+pre-commit install
+```
