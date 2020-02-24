@@ -21,8 +21,8 @@ class Player:
         self._game = game
         self._game.send_name_to_server(name)
         self._game.load_initial_parameters()
-        species_type, total_nb, depart = self._game.get_start_info()
-        self._specie = Specie(species_type, total_nb, *depart)
+        self.type, total_nb, depart = self._game.get_start_info()
+        self._specie = Specie(self.type, total_nb, *depart)
 
     def move(self, moves_list):
         """

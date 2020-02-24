@@ -13,12 +13,11 @@ parser.add_argument("--port", "-P", help="the port to use", type=int, default=55
 args = parser.parse_args()
 
 if __name__ == "__main__":
-    Game = Game(args.host, args.port)
-    Player = Player(args.name, Game)
-    print("You are the {}".format(Game._type))
-    while Game.is_running:
-        Game.update_map()
-        if Game.is_running:
-            moves_dict = heuristic1(Player, Game)
-            print(moves_dict)
-            Player.move(moves_dict)
+    game = Game(args.host, args.port)
+    player = Player(args.name, game)
+    print("You are the {}".format(player.type))
+    while game.is_running:
+        game.update_map()
+        if game.is_running:
+            moves_dict = heuristic1(player, game)
+            player.move(moves_dict)

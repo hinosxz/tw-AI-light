@@ -53,7 +53,6 @@ class Game:
 
     def get_start_info(self):
         start_cell = self._map[self._start]
-        total_nb = 0
         if start_cell[1] != 0:
             self._type = "vampire"
             total_nb = start_cell[1]
@@ -98,11 +97,9 @@ class Game:
             nb_changes = struct.unpack("B", self._sock.recv(1))[0]
             self._update_cells(nb_changes)
         except AssertionError as e:
-            end_message = self._sock.recv(3).decode()
             self.end_game()
 
     def _update_cells(self, nb_changes):
-        """ Met à jour les cases en fonction des informations reçues """
         for i in range(nb_changes):
             x_case = struct.unpack("B", self._sock.recv(1))[0]
             y_case = struct.unpack("B", self._sock.recv(1))[0]
