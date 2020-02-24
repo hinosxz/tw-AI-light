@@ -26,13 +26,13 @@ class Player:
 
     def move(self, moves_list):
         """
-        This function take as an entry a list of dictionnaries, containing each move to do.
+        This function take as an entry a list of dictionaries, containing each move to do.
 
         It updates the groups and then send the information to the Game object
 
         Parameters
         ----------
-        moves_list : list of dictionnaries
+        moves_list : list of dictionaries
             {
                 'from_position':
                 'number':
@@ -52,11 +52,8 @@ class Player:
                 pass
             else:
                 raise ValueError(
-                    "You cannot move {} {}, the group on ({}) has a size of {}".format(
-                        move["number"],
-                        self._type,
-                        move["from_position"],
-                        group.get_size(),
+                    "You cannot move {} specie, the group on ({}) has a size of {}".format(
+                        move["number"], move["from_position"], group.get_size()
                     )
                 )
         self._game.send_move(moves_list)
