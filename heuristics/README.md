@@ -1,11 +1,11 @@
-# Comment créer une heuristique
+# How to create an heuristic
 
-Une heuristique peut être construite à l'aide de deux objets :
+A heuristic can be built thanks to two tools :
 
-- Un objet Player (le joueur jouant au jeu)
-- Un objet Game (qui effectue le lien avec le serveur)
+- A Player instance (the player playing to the game)
+- A Game instance (that makes the link with the server)
 
-Il est possible d'accéder aux positions des humains et des opposants à l'aide des méthodes :
+It's possible to access to the positions of the humans and opponents thanks to the following methods
 
-- get_opponent_positions() de Game
-- get_humans_positions() de Game
+- get_opponent_positions() of Game
+- get_humans_positions() of Game
