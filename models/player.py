@@ -59,4 +59,4 @@ class Player:
         self._game.send_move(moves_list)
 
     def get_species(self):
-        return self._species
+        return self._specie
