@@ -51,6 +51,18 @@ class Game:
                         opponent_dict[(i, j)] = cell[2]
         return opponent_dict
 
+    def get_our_positions(self):
+        player_dict = {}
+        for i, row in enumerate(self._map):
+            for j, cell in enumerate(row):
+                if self._type == "vampire":
+                    if cell[2] != 0:
+                        player_dict[(i, j)] = cell[1]
+                elif self._type == "wolf":
+                    if cell[1] != 0:
+                        player_dict[(i, j)] = cell[2]
+        return player_dict
+
     def get_start_info(self):
         start_cell = self._map[self._start]
         if start_cell[1] != 0:
