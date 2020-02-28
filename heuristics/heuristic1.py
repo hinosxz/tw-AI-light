@@ -1,18 +1,7 @@
 import itertools
 import time
 
-
-def manhattan_dist(d1, d2):
-    return ((d1[0] - d2[0]) ** 2 + (d1[1] - d2[1]) ** 2) ** (0.5)
-
-
-def sign_integer(value):
-    if value > 0:
-        return 1
-    elif value < 0:
-        return -1
-    else:
-        return 0
+from lib.util import manhattan_dist, sign_integer
 
 
 def distance_nb_coups(pos_1, pos_2):
