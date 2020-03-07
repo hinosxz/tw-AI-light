@@ -5,7 +5,7 @@ from lib.util import manhattan_dist
 
 def absolute_heuristic(game: Game):
     w_adv, w_hum = 1, 1
-    houses_dict = game.get_humans_positions()
+    houses_dict = game.get_human_positions()
     opponent_dict = game.get_opponent_positions()
     our_dict = game.get_our_positions()
     score = 0
