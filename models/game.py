@@ -2,13 +2,10 @@ from socket import socket, AF_INET, SOCK_STREAM
 from struct import pack, unpack
 
 from numpy import zeros, uint8
-from typing import Tuple, List, Dict
+from typing import Tuple, List
 
-
-# Index of the given species in the [nb_humans, nb_vampires, nb_werewolves] array
-TYPE_TO_POSITION_INDEX = {"vampire": 1, "wolf": 2}
-
-TYPE_TO_OPPONENT_POSITION_INDEX = {"wolf": 1, "vampire": 2}
+from lib.constants import TYPE_TO_POSITION_INDEX
+from lib.positions import get_opponent_positions, get_our_positions
 
 
 class Game:
@@ -35,37 +32,20 @@ class Game:
         self._start = (0, 0)
         # _map[x, y] = [nb_humans, nb_vampires, nb_werewolves]
         self._map = zeros(0)
-        self._type = ""
+        self.type = ""
         self.is_running = True
-
-    def get_positions(self, index: int):
-        positions: Dict[Tuple[int, int], int] = {}
-        for i, row in enumerate(self._map):
-            for j, cell in enumerate(row):
-                if cell[index] != 0:
-                    positions[(i, j)] = cell[index]
-        return positions
-
-    def get_human_positions(self):
-        return self.get_positions(0)
-
-    def get_opponent_positions(self):
-        return self.get_positions(TYPE_TO_OPPONENT_POSITION_INDEX[self._type])
-
-    def get_our_positions(self):
-        return self.get_positions(TYPE_TO_POSITION_INDEX[self._type])
 
     def get_map(self):
         return self._map
 
     def get_start_info(self):
         start_cell: List[int] = self._map[self._start]
-        total_nb = start_cell[TYPE_TO_POSITION_INDEX[self._type]]
-        return self._type, total_nb, self._start
+        total_nb = start_cell[TYPE_TO_POSITION_INDEX[self.type]]
+        return self.type, total_nb, self._start
 
     def is_over(self):
-        return len(self.get_opponent_positions().keys()) == 0 or len(
-            self.get_our_positions().keys()
+        return len(get_opponent_positions(self._map, self.type).keys()) == 0 or len(
+            get_our_positions(self._map, self.type).keys()
         )
 
     def send_name_to_server(self, name):
@@ -82,12 +62,12 @@ class Game:
             from_pos_x, from_pos_y = move["from_position"]
 
             # Update the map
-            self._map[to_pos_x, to_pos_y][TYPE_TO_POSITION_INDEX[self._type]] = (
-                self._map[from_pos_x, from_pos_y][TYPE_TO_POSITION_INDEX[self._type]]
+            self._map[to_pos_x, to_pos_y][TYPE_TO_POSITION_INDEX[self.type]] = (
+                self._map[from_pos_x, from_pos_y][TYPE_TO_POSITION_INDEX[self.type]]
                 - move["number"]
             )
             self._map[from_pos_x, from_pos_y][
-                TYPE_TO_POSITION_INDEX[self._type]
+                TYPE_TO_POSITION_INDEX[self.type]
             ] -= move["number"]
 
             msg_to_send += pack("B", int(move["from_position"][1]))
@@ -118,9 +98,9 @@ class Game:
                 y_start, x_start = self._start
                 if x_start == x and y_start == y:
                     if nb_vampires != 0:
-                        self._type = "vampire"
+                        self.type = "vampire"
                     elif nb_werewolves != 0:
-                        self._type = "wolf"
+                        self.type = "wolf"
                     else:
                         raise IOError(
                             "Cannot initialize the game: there must be at least 1 vampire/wolf in the start cell"

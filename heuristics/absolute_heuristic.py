@@ -1,3 +1,4 @@
+from lib.positions import get_human_positions, get_opponent_positions, get_our_positions
 from models.game import Game
 
 from lib.util import manhattan_dist
@@ -5,9 +6,10 @@ from lib.util import manhattan_dist
 
 def absolute_heuristic(game: Game):
     w_adv, w_hum = 1, 1
-    houses_dict = game.get_human_positions()
-    opponent_dict = game.get_opponent_positions()
-    our_dict = game.get_our_positions()
+    m = game.get_map()
+    houses_dict = get_human_positions(m)
+    opponent_dict = get_opponent_positions(m, game.type)
+    our_dict = get_our_positions(m, game.type)
     score = 0
 
     # calculate our score regarding the current state of the map
