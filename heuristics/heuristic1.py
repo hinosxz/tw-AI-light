@@ -1,18 +1,7 @@
 import itertools
 import time
 
-
-def manhattan_dist(d1, d2):
-    return ((d1[0] - d2[0]) ** 2 + (d1[1] - d2[1]) ** 2) ** (0.5)
-
-
-def sign_integer(value):
-    if value > 0:
-        return 1
-    elif value < 0:
-        return -1
-    else:
-        return 0
+from lib.util import manhattan_dist, sign_integer
 
 
 def distance_nb_coups(pos_1, pos_2):
@@ -27,6 +16,10 @@ def distance_nb_coups(pos_1, pos_2):
     return nb_moves_diagonal + nb_moves_line
 
 
+def is_valid_position(x, y):
+    return x >= 0 and y >= 0
+
+
 def heuristic1(player, game):
     moves_list = []
     w0, w1, w2 = (1, 1, 1)
@@ -38,8 +31,9 @@ def heuristic1(player, game):
         max_move = (0, 0)
         for move in itertools.product([-1, 0, 1], [-1, 0, 1]):
             value = 0
-            if move[0] != 0 or move[1] != 0:
-                group.move([position_x + move[0], position_y + move[1]])
+            x, y = [position_x + move[0], position_y + move[1]]
+            if is_valid_position(x, y) and (move[0] != 0 or move[1] != 0):
+                group.move([x, y])
                 d_0, n_0 = group.get_position(), group.get_size()
                 for op_group in opponent_dict.keys():
                     n_1, d_1 = opponent_dict[op_group], op_group

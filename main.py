@@ -1,6 +1,6 @@
 from models.game import Game
 from models.player import Player
-from heuristics.h1 import *
+from heuristics.heuristic1 import heuristic1
 import argparse
 
 
