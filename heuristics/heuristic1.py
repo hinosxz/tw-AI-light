@@ -2,21 +2,11 @@ import itertools
 import time
 
 from lib.positions import get_opponent_positions, get_human_positions
-from lib.util import manhattan_dist, sign_integer
+from lib.util import manhattan_dist, sign_integer, distance_nb_coups
 from models.game import Game
 from models.player import Player
 
 
-def distance_nb_coups(pos_1, pos_2):
-    # We calculate the number of moves to do in diagonal
-    x_init, y_init = pos_1
-    x_final, y_final = pos_2
-    nb_moves_diagonal = min(abs(x_init - x_final), abs(y_init - y_final))
-    # We calculate the number of moves to do in line
-    x_init -= nb_moves_diagonal * sign_integer(x_init - x_final)
-    y_init -= nb_moves_diagonal * sign_integer(y_init - y_final)
-    nb_moves_line = max(abs(x_init - x_final), abs(y_init - y_final))
-    return nb_moves_diagonal + nb_moves_line
 
 
 def is_valid_position(x, y):
