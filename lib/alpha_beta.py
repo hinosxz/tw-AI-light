@@ -54,8 +54,8 @@ def get_successors(state: ndarray, species: int):
         get_moves(group_position, size, get_neighbors(group_position, state.shape))
         for group_position, size in groups.items()
     ]
-    possible_moves: Iterable[Tuple[Tuple[int, int, int, int, int], ...]] = product(
-        *possible_moves_per_group
+    possible_moves: List[Tuple[Tuple[int, int, int, int, int], ...]] = list(
+        product(*possible_moves_per_group)
     )
 
     successors: List[ndarray] = []
@@ -66,7 +66,7 @@ def get_successors(state: ndarray, species: int):
             successor[x_target, y_target, species] += size
         successors.append(successor)
 
-    return successors
+    return successors, possible_moves
 
 
 def alphabeta_search(species_played: str, state: ndarray, d=4):
@@ -83,40 +83,60 @@ def alphabeta_search(species_played: str, state: ndarray, d=4):
             return evaluate(s, species_played), s
         v = -infinity
         next_state = s
-        for successor_state in get_successors(
+        moves = []
+        successor_states, successor_move_options = get_successors(
             state, TYPE_TO_POSITION_INDEX[species_played]
-        ):
+        )
+        for k in range(len(successor_move_options)):
+            successor_state = successor_states[k]
+            successor_moves = successor_move_options[k]
             next_min = min_value(successor_state, alpha, beta, depth + 1)[0]
             if next_min > v:
                 v = next_min
                 next_state = successor_state
+                moves = successor_moves
             if v >= beta:
-                return v, next_state
+                return v, next_state, moves
             alpha = max(alpha, v)
-        return v, next_state
+        return v, next_state, moves
 
     def min_value(s: ndarray, alpha: int, beta: int, depth: int):
         if cutoff_test(s, depth, d):
             return evaluate(s, OPPONENTS[species_played]), s
         v = infinity
         next_state = s
-        for successor_state in get_successors(
+        moves = []
+        successor_states, successor_move_options = get_successors(
             state, TYPE_TO_OPPONENT_POSITION_INDEX[species_played]
-        ):
+        )
+        for k in range(len(successor_move_options)):
+            successor_state = successor_states[k]
+            successor_moves = successor_move_options[k]
             next_max = max_value(successor_state, alpha, beta, depth + 1)[0]
             if next_max < v:
                 v = next_max
                 next_state = successor_state
+                moves = successor_moves
             if v <= alpha:
-                return v, next_state
+                return v, next_state, moves
             beta = min(beta, v)
-        return v, next_state
+        return v, next_state, moves
 
-    return max_value(state, -infinity, infinity, 0)
+    _value, _map, next_move_iterator = max_value(state, -infinity, infinity, 0)
+    next_moves = []
+    for x_origin, y_origin, size, x_target, y_target in next_move_iterator:
+        next_moves.append(
+            {
+                "from_position": [x_origin, y_origin],
+                "number": size,
+                "to_position": [x_target, y_target],
+            }
+        )
+    return next_moves
 
 
 # Example state to test
-# example = array( [
+# example = array([
 #         [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 2, 0], [0, 0, 0], [0, 0, 0]],
 #         [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
 #         [[0, 0, 0], [0, 0, 0], [1, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
