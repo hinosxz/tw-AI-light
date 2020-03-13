@@ -1,6 +1,7 @@
 from models.game import Game
 from models.player import Player
 from heuristics.heuristic1 import heuristic1
+from lib.alpha-beta import alphabeta_search
 import argparse
 
 
@@ -19,5 +20,5 @@ if __name__ == "__main__":
     while game.is_running:
         game.update_map()
         if game.is_running:
-            moves_dict = heuristic1(player, game)
+            moves_dict = alphabeta_search(game.get_map(), game)
             player.move(moves_dict)
