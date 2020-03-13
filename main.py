@@ -1,10 +1,10 @@
 from models.game import Game
 from models.player import Player
-from heuristics.heuristic1 import heuristic1
-import argparse
+from lib.alpha_beta import alphabeta_search
+from argparse import ArgumentParser
 
 
-parser = argparse.ArgumentParser()
+parser = ArgumentParser()
 parser.add_argument("--name", "-N", help="Name of the player", type=str, default="JPP2")
 parser.add_argument(
     "--host", "-H", help="the host to use", type=str, default="127.0.0.1"
@@ -15,9 +15,9 @@ args = parser.parse_args()
 if __name__ == "__main__":
     game = Game(args.host, args.port)
     player = Player(args.name, game)
-    print("You are the {}".format(player.type))
+    print("You're playing {}".format(player.type))
     while game.is_running:
         game.update_map()
         if game.is_running:
-            moves_dict = heuristic1(player, game)
-            player.move(moves_dict)
+            moves = alphabeta_search(game.type, game.get_map(), d=4)
+            player.move(moves)
