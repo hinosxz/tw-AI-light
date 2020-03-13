@@ -1,15 +1,24 @@
+from numpy import ndarray
+
 from lib.util import distance_nb_coups
+from lib.positions import get_human_positions, get_our_positions, get_opponent_positions
 
 
-def absolute_heuristic(our_positions:dict, opponent_positions:dict, humans_positions:dict):
+def absolute_heuristic(state: ndarray, species_played: str):
     """
     This heuristic is trying to quantify the advantaging position
     of a team uppon an other
     """
 
+    humans_positions, our_positions, opponent_positions = (
+        get_human_positions(state),
+        get_our_positions(state, species_played),
+        get_opponent_positions(state, species_played),
+    )
+
     w_us, w_adv, w_hum = 1, 1, 1
     score = 0
-    
+
     # calculate our score regarding the current state of the map
     for us_position in our_positions.keys():
         # value_list = []
@@ -19,20 +28,20 @@ def absolute_heuristic(our_positions:dict, opponent_positions:dict, humans_posit
         for oppo_position in opponent_positions.keys():
             nb_oppo = opponent_positions[oppo_position]
             distance_us_oppo = distance_nb_coups(us_position, oppo_position)
-            if nb_us >= 1.5*nb_oppo:
-                value += w_adv / ( distance_us_oppo * (1.51 - nb_oppo/nb_us))
+            if nb_us >= 1.5 * nb_oppo:
+                value += w_adv / (distance_us_oppo * (1.51 - nb_oppo / nb_us))
             else:
                 if nb_us >= nb_oppo:
                     probability_of_win = nb_us / nb_oppo - 0.5
                 else:
                     probability_of_win = nb_us / (2 * nb_oppo)
-                value += probability_of_win*w_adv / distance_us_oppo
+                value += probability_of_win * w_adv / distance_us_oppo
 
         for human_position in humans_positions.keys():
             nb_human = humans_positions[human_position]
             distance_us_human = distance_nb_coups(us_position, human_position)
-            if nb_us>=nb_human:
-                value += w_hum / (distance_us_human * (1.01 - nb_human/nb_us))
+            if nb_us >= nb_human:
+                value += w_hum / (distance_us_human * (1.01 - nb_human / nb_us))
             else:
                 probability_of_win = nb_us / (2 * nb_human)
                 value += probability_of_win * w_hum / distance_us_human - 0.5
@@ -46,19 +55,19 @@ def absolute_heuristic(our_positions:dict, opponent_positions:dict, humans_posit
         for us_position in our_positions.keys():
             nb_us = our_positions[us_position]
             distance_oppo_us = distance_nb_coups(oppo_position, us_position)
-            if nb_oppo >= 1.5*nb_us:
-                value += w_adv / (distance_oppo_us * (1.51 - nb_us/nb_oppo))
+            if nb_oppo >= 1.5 * nb_us:
+                value += w_adv / (distance_oppo_us * (1.51 - nb_us / nb_oppo))
             else:
                 if nb_oppo >= nb_us:
                     probability_of_win = nb_oppo / nb_us - 0.5
                 else:
                     probability_of_win = nb_oppo / (2 * nb_us)
-                value += probability_of_win*w_adv / distance_oppo_us
+                value += probability_of_win * w_adv / distance_oppo_us
         for human_position in humans_positions.keys():
             nb_human = humans_positions[human_position]
             distance_oppo_human = distance_nb_coups(oppo_position, human_position)
-            if nb_oppo>=nb_human:
-                value += w_hum / (distance_oppo_human * (1.01 - nb_human/nb_oppo))
+            if nb_oppo >= nb_human:
+                value += w_hum / (distance_oppo_human * (1.01 - nb_human / nb_oppo))
             else:
                 probability_of_win = nb_oppo / (2 * nb_human)
                 value += probability_of_win * w_hum / distance_us_human - 0.5
