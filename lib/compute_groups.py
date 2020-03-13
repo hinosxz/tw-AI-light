@@ -1,10 +1,15 @@
 from math import ceil
 from operator import itemgetter
 from copy import copy
-import time
+from time import time
+from typing import Dict, Tuple
 
 
-def compute_groups(our_positions: dict, enemy_positions: dict, human_positions: dict):
+def compute_groups(
+    our_positions: Dict[Tuple[int, int], int],
+    enemy_positions: Dict[Tuple[int, int], int],
+    human_positions: Dict[Tuple[int, int], int],
+):
     our_size = 0
 
     for key, value in our_positions.items():
@@ -91,16 +96,16 @@ def find_closest_target(possibility, sizes):
 
 
 def to_tuple(move, pos):
-    return tuple((pos[0], pos[1], move[1], move[0][0], move[0][1]))
+    return pos[0], pos[1], move[1], move[0][0], move[0][1]
 
 
 # enemy_positions = {(2, 13): 2, (4, 12): 2, (5, 7): 2}
 # human_positions = {(10, 3): 4}
 # our_positions = {(2, 8): 11}
 #
-# start = time.time()
+# start = time()
 # output = compute_groups(our_positions, enemy_positions, human_positions)
-# end = time.time()
+# end = time()
 #
 # print("Returned : " + str(output))
 # print("Length : " + str(len(output)))
