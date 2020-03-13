@@ -1,11 +1,17 @@
-from itertools import product
 from numpy import inf as infinity, ndarray, array, copy
+from typing import Tuple, List
 from numpy.random import binomial
 from typing import Iterable, Tuple, List
 
 from heuristics.absolute_heuristic import absolute_heuristic
-from lib.constants import TYPE_TO_POSITION_INDEX, TYPE_TO_OPPONENT_POSITION_INDEX
-from lib.positions import get_positions
+from lib.compute_groups import compute_groups
+from lib.positions import (
+    get_positions,
+    get_our_positions,
+    get_opponent_positions,
+    get_human_positions,
+)
+from lib.constants import TYPE_TO_POSITION_INDEX
 
 
 OPPONENTS = {"vampire": "wolf", "wolf": "vampire"}
@@ -48,17 +54,13 @@ def get_moves(
     return [(*group_position, size, *to) for to in neighbors]
 
 
-def get_successors(state: ndarray, species: int):
-    groups = get_positions(state, species)
+def get_successors(state: ndarray, species: str):
+    our_groups = get_our_positions(state, species)
+    their_groups = get_opponent_positions(state, species)
+    human_groups = get_human_positions(state)
 
-    possible_moves_per_group = [
-        get_moves(group_position, size, get_neighbors(group_position, state.shape))
-        for group_position, size in groups.items()
-    ]
-    possible_moves: List[Tuple[Tuple[int, int, int, int, int], ...]] = list(
-        product(*possible_moves_per_group)
-    )
-    # (xdep, ydep, quant, xarr, yarr)
+    possible_moves = compute_groups(our_groups, their_groups, human_groups)
+
     successors: List[ndarray] = []
     for moves in possible_moves:
         successor = copy(state)
