@@ -1,10 +1,8 @@
 from math import ceil
-import itertools
-from heuristics.heuristic1 import distance_nb_coups
 from operator import itemgetter
 from copy import copy
 
-ennemy_positions = {(2, 3): 2, (4, 3): 2, (5, 7): 2}
+ennemy_positions = {(2, 3): 2, (4, 12): 2, (5, 7): 2}
 
 human_positions = {(10, 3): 4}
 
@@ -16,9 +14,8 @@ def compute_groups(our_positions: dict, ennemy_positions: dict, human_positions:
 
     for key, value in our_positions.items():
         our_size = [key, value]
-
+    init_pos = our_size[0]
     sizes = []
-    possibilities = [[our_size]]
 
     for key, value in ennemy_positions.items():
         sizes.append([key, ceil(1.5 * value)])
@@ -27,30 +24,45 @@ def compute_groups(our_positions: dict, ennemy_positions: dict, human_positions:
         sizes.append([key, value])
 
     sizes = sorted(sizes, key=itemgetter(1))
+
+    buffer = copy(our_size)
+    buffer[0] = find_closest_target([our_size], sizes)
+    possibilities = [[buffer]]
+
     for i in range(len(sizes)):
         j = i
-        buffer_size = copy(our_size)
+        buffer_us = copy(buffer)
         buffer_split = []
+        addresses = []
         # TODO Limit minimal split size in a smarter way
-        while j < len(sizes) and (buffer_size[1] - sizes[j][1]) >= sizes[j][1]:
+        while j < len(sizes) and (buffer_us[1] - sizes[j][1]) >= sizes[j][1]:
 
-            buffer_size[1] = buffer_size[1] - sizes[j][1]
-            buffer_split.append([find_closest(our_size[0], sizes[j][0]), sizes[j][1]])
-            possibility = [copy(buffer_size)] + buffer_split
-            possibilities += [possibility]
+            buffer_us[1] = buffer_us[1] - sizes[j][1]
+
+            new_pos = find_closest(init_pos, sizes[j][0])
+
+            new_target_pos = find_closest_target([[init_pos, buffer_us[1]]], sizes)
+
+            print(new_pos)
+
+            if new_pos not in addresses + [new_target_pos]:
+                pos = copy(new_pos)
+                addresses.append(pos)
+                buffer_split.append([pos, sizes[j][1]])
+                buffer_us = copy(buffer_us)
+                buffer_us[0] = new_target_pos
+                possibility = [copy(buffer_us)] + buffer_split
+                possibilities += [possibility]
+
+            else:
+                if new_pos in addresses:
+                    merge_with = [x for x, y in enumerate(addresses) if y == new_pos]
+                    buffer_split[merge_with[0]][1] += sizes[j][1]
+                    possibility = [copy(buffer_us)] + buffer_split
+                    possibilities += [possibility]
             j += 1
 
-    output = []
-    for possibility in possibilities:
-
-        j = len(sizes) - 1
-        while possibility[0][1] < sizes[j][1]:
-            j -= 1
-        possibility[0][0] = find_closest(possibility[0][0], sizes[j][0])
-
-        if possibility not in output:
-            output.append(possibility)
-    return output
+    return possibilities
 
 
 def find_closest(our_position, target_position):
@@ -79,6 +91,13 @@ def find_closest(our_position, target_position):
         x0, y0 = our_position[0] + 1, our_position[1] + 1
 
     return tuple((x0, y0))
+
+
+def find_closest_target(possibility, sizes):
+    j = len(sizes) - 1
+    while possibility[0][1] < sizes[j][1]:
+        j -= 1
+    return find_closest(possibility[0][0], sizes[j][0])
 
 
 output = compute_groups(our_positions, ennemy_positions, human_positions)
