@@ -23,3 +23,15 @@ def flatten(array: Tuple[List[Tuple[int, int, int, int, int]]]):
         for item in sublist:
             flat_list.append(item)
     return flat_list
+
+def distance_nb_coups(pos_1, pos_2):
+    # We calculate the number of moves to do in diagonal
+    x_init, y_init = pos_1
+    x_final, y_final = pos_2
+    nb_moves_diagonal = min(abs(x_init - x_final), abs(y_init - y_final))
+    # We calculate the number of moves to do in line
+    x_init -= nb_moves_diagonal * sign_integer(x_init - x_final)
+    y_init -= nb_moves_diagonal * sign_integer(y_init - y_final)
+    nb_moves_line = max(abs(x_init - x_final), abs(y_init - y_final))
+    return nb_moves_diagonal + nb_moves_line
+

@@ -1,60 +1,66 @@
-from numpy import ndarray
-
-from lib.positions import get_human_positions, get_opponent_positions, get_our_positions
-
-from lib.util import manhattan_dist
+from lib.util import distance_nb_coups
 
 
-def absolute_heuristic(state: ndarray, game_type: str):
-    w_adv, w_hum = 1, 1
-    houses_dict = get_human_positions(state)
-    opponent_dict = get_opponent_positions(state, game_type)
-    our_dict = get_our_positions(state, game_type)
+def absolute_heuristic(our_positions:dict, opponent_positions:dict, humans_positions:dict):
+    """
+    This heuristic is trying to quantify the advantaging position
+    of a team uppon an other
+    """
+
+    w_us, w_adv, w_hum = 1, 1, 1
     score = 0
-
+    
     # calculate our score regarding the current state of the map
-    for us_position in our_dict.keys():
+    for us_position in our_positions.keys():
+        # value_list = []
+        nb_us = our_positions[us_position]
+        # value = nb_us * w_us # use to rise the interest of eating ennemies
         value = 0
-        value_list = []
-        nb_us = our_dict[us_position]
-        for oppo_position in opponent_dict.keys():
-            nb_oppo = opponent_dict[oppo_position]
-            distance_us_oppo = manhattan_dist(us_position, oppo_position)
-            # FIXME find better alternative to avoid division by zero
-            if distance_us_oppo and nb_oppo:
-                value += w_adv / distance_us_oppo * (nb_us / nb_oppo - 3 / 2)
-        for human_position in houses_dict.keys():
-            nb_human = houses_dict[human_position]
-            distance_us_human = manhattan_dist(us_position, human_position)
-            # FIXME find better alternative to avoid division by zero
-            if distance_us_human and nb_human:
-                value += w_hum / distance_us_human * (nb_us / nb_human - 1)
-        value_list.append(value)
-        all_neg = True
-        for val in value_list:
-            if val >= 0:
-                all_neg = False
-                break
+        for oppo_position in opponent_positions.keys():
+            nb_oppo = opponent_positions[oppo_position]
+            distance_us_oppo = distance_nb_coups(us_position, oppo_position)
+            if nb_us >= 1.5*nb_oppo:
+                value += w_adv / distance_us_oppo
             else:
-                # TODO find the heuristics which include the random battle
-                pass
+                if nb_us >= nb_oppo:
+                    probability_of_win = nb_us / nb_oppo - 0.5
+                else:
+                    probability_of_win = nb_us / (2 * nb_oppo)
+                value += probability_of_win*w_adv / distance_us_oppo
+
+        for human_position in humans_positions.keys():
+            nb_human = humans_positions[human_position]
+            distance_us_human = distance_nb_coups(us_position, human_position)
+            if nb_us>=nb_human:
+                value += w_hum / distance_us_human
+            else:
+                probability_of_win = nb_us / (2 * nb_human)
+                value += probability_of_win * w_hum / distance_us_human - 0.5
         score += value
 
     # calculate the opponent score regarding the current state of the map
-    for oppo_position in opponent_dict.keys():
+    for oppo_position in opponent_positions.keys():
+        nb_oppo = opponent_positions[oppo_position]
+        # value = w_us * nb_oppo
         value = 0
-        nb_oppo = opponent_dict[oppo_position]
-        for us_position in our_dict.keys():
-            nb_us = our_dict[us_position]
-            distance_oppo_us = manhattan_dist(oppo_position, us_position)
-            # FIXME find better alternative to avoid division by zero
-            if distance_oppo_us and nb_us:
-                value += w_adv / distance_oppo_us * (nb_oppo / nb_us - 3 / 2)
-        for human_position in houses_dict.keys():
-            nb_human = houses_dict[human_position]
-            distance_oppo_human = manhattan_dist(oppo_position, human_position)
-            # FIXME find better alternative to avoid division by zero
-            if distance_oppo_human and nb_human:
-                value += w_hum / distance_oppo_human * (nb_oppo / nb_human - 1)
+        for us_position in our_positions.keys():
+            nb_us = our_positions[us_position]
+            distance_oppo_us = distance_nb_coups(oppo_position, us_position)
+            if nb_oppo >= 1.5*nb_us:
+                value += w_adv / distance_oppo_us
+            else:
+                if nb_oppo >= nb_us:
+                    probability_of_win = nb_oppo / nb_us - 0.5
+                else:
+                    probability_of_win = nb_oppo / (2 * nb_us)
+                value += probability_of_win*w_adv / distance_oppo_us
+        for human_position in humans_positions.keys():
+            nb_human = humans_positions[human_position]
+            distance_oppo_human = distance_nb_coups(oppo_position, human_position)
+            if nb_oppo>=nb_human:
+                value += w_hum / distance_oppo_human
+            else:
+                probability_of_win = nb_oppo / (2 * nb_human)
+                value += probability_of_win * w_hum / distance_us_human - 0.5
         score -= value
     return score
