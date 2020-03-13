@@ -1,5 +1,6 @@
 from itertools import product
 from numpy import inf as infinity, ndarray, array, copy
+from numpy.random import binomial
 from typing import Iterable, Tuple, List
 
 from heuristics.absolute_heuristic import absolute_heuristic
@@ -64,9 +65,51 @@ def get_successors(state: ndarray, species: int):
         for x_origin, y_origin, size, x_target, y_target in moves:
             successor[x_origin, y_origin, species] -= size
             successor[x_target, y_target, species] += size
+            successor[x_target, y_target] = check_conflict(
+                successor[x_target, y_target], species
+            )
         successors.append(successor)
-
     return successors
+
+
+def check_conflict(current_cell: ndarray, player_index: int):
+    cell = copy(current_cell)
+    nb_humans = cell[0]
+    nb_player = cell[player_index]
+    opponent_index = (player_index % 2) + 1
+    nb_opponent = cell[opponent_index]
+    if nb_humans > 0 and nb_player > 0:
+        if nb_player >= nb_humans:
+            cell[0] = 0
+            cell[player_index] += nb_humans
+        else:
+            probability_of_win = nb_player / (2 * nb_humans)
+            battle_won = binomial(1, probability_of_win)
+            if battle_won:
+                added_humans = binomial(nb_humans, probability_of_win)
+                cell[0] = 0
+                cell[player_index] = (
+                    binomial(nb_player, probability_of_win) + added_humans
+                )
+            else:
+                cell[player_index] = 0
+                cell[0] = binomial(nb_humans, 1 - probability_of_win)
+    elif nb_opponent > 0 and nb_player > 0:
+        if nb_player >= 1.5 * nb_opponent:
+            cell[opponent_index] = 0
+        else:
+            if nb_player >= nb_opponent:
+                probability_of_win = nb_player / nb_opponent - 0.5
+            else:
+                probability_of_win = nb_player / (2 * nb_opponent)
+            battle_won = binomial(1, probability_of_win)
+            if battle_won:
+                cell[opponent_index] = 0
+                cell[player_index] = binomial(nb_player, probability_of_win)
+            else:
+                cell[player_index] = 0
+                cell[opponent_index] = binomial(nb_opponent, 1 - probability_of_win)
+    return cell
 
 
 def alphabeta_search(species_played: str, state: ndarray, d=4):
@@ -124,3 +167,7 @@ def alphabeta_search(species_played: str, state: ndarray, d=4):
 #         [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [1, 0, 0], [0, 0, 0]],
 #     ])
 # print(alphabeta_search("vampire", example))
+
+if __name__ == "__main__":
+    array = check_conflict(array([0, 3, 1]), 1)
+    print(array)
