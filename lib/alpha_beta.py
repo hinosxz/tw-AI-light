@@ -58,7 +58,7 @@ def get_successors(state: ndarray, species: int):
     possible_moves: List[Tuple[Tuple[int, int, int, int, int], ...]] = list(
         product(*possible_moves_per_group)
     )
-
+    # (xdep, ydep, quant, xarr, yarr)
     successors: List[ndarray] = []
     for moves in possible_moves:
         successor = copy(state)
