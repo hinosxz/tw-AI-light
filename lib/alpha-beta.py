@@ -112,7 +112,7 @@ def alphabeta_search(species_played: str, state: ndarray, d=4):
             beta = min(beta, v)
         return v, next_state
 
-    return min_value(state, -infinity, infinity, 0)
+    return max_value(state, -infinity, infinity, 0)
 
 
 # Example state to test
