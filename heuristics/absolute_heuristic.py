@@ -20,7 +20,7 @@ def absolute_heuristic(our_positions:dict, opponent_positions:dict, humans_posit
             nb_oppo = opponent_positions[oppo_position]
             distance_us_oppo = distance_nb_coups(us_position, oppo_position)
             if nb_us >= 1.5*nb_oppo:
-                value += w_adv / distance_us_oppo
+                value += w_adv / ( distance_us_oppo * (1.51 - nb_oppo/nb_us))
             else:
                 if nb_us >= nb_oppo:
                     probability_of_win = nb_us / nb_oppo - 0.5
@@ -32,7 +32,7 @@ def absolute_heuristic(our_positions:dict, opponent_positions:dict, humans_posit
             nb_human = humans_positions[human_position]
             distance_us_human = distance_nb_coups(us_position, human_position)
             if nb_us>=nb_human:
-                value += w_hum / distance_us_human
+                value += w_hum / (distance_us_human * (1.01 - nb_human/nb_us))
             else:
                 probability_of_win = nb_us / (2 * nb_human)
                 value += probability_of_win * w_hum / distance_us_human - 0.5
@@ -47,7 +47,7 @@ def absolute_heuristic(our_positions:dict, opponent_positions:dict, humans_posit
             nb_us = our_positions[us_position]
             distance_oppo_us = distance_nb_coups(oppo_position, us_position)
             if nb_oppo >= 1.5*nb_us:
-                value += w_adv / distance_oppo_us
+                value += w_adv / (distance_oppo_us * (1.51 - nb_us/nb_oppo))
             else:
                 if nb_oppo >= nb_us:
                     probability_of_win = nb_oppo / nb_us - 0.5
@@ -58,7 +58,7 @@ def absolute_heuristic(our_positions:dict, opponent_positions:dict, humans_posit
             nb_human = humans_positions[human_position]
             distance_oppo_human = distance_nb_coups(oppo_position, human_position)
             if nb_oppo>=nb_human:
-                value += w_hum / distance_oppo_human
+                value += w_hum / (distance_oppo_human * (1.01 - nb_human/nb_oppo))
             else:
                 probability_of_win = nb_oppo / (2 * nb_human)
                 value += probability_of_win * w_hum / distance_us_human - 0.5
