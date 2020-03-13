@@ -1,7 +1,10 @@
 import itertools
 import time
 
+from lib.positions import get_opponent_positions, get_human_positions
 from lib.util import manhattan_dist, sign_integer
+from models.game import Game
+from models.player import Player
 
 
 def distance_nb_coups(pos_1, pos_2):
@@ -20,11 +23,12 @@ def is_valid_position(x, y):
     return x >= 0 and y >= 0
 
 
-def heuristic1(player, game):
+def heuristic1(player: Player, game: Game):
     moves_list = []
     w0, w1, w2 = (1, 1, 1)
-    opponent_dict = game.get_opponent_positions()
-    humans_dict = game.get_human_positions()
+    m = game.get_map()
+    opponent_dict = get_opponent_positions(m, game.type)
+    humans_dict = get_human_positions(m)
     for i, group in enumerate(player.get_species().get_groups()):
         position_x, position_y = group.get_position()
         max_value = -100000
