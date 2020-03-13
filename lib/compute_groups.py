@@ -1,15 +1,10 @@
 from math import ceil
 from operator import itemgetter
 from copy import copy
-
-ennemy_positions = {(2, 3): 2, (4, 12): 2, (5, 7): 2}
-
-human_positions = {(10, 3): 4}
-
-our_positions = {(2, 8): 11}
+import time
 
 
-def compute_groups(our_positions: dict, ennemy_positions: dict, human_positions: dict):
+def compute_groups(our_positions: dict, enemy_positions: dict, human_positions: dict):
     our_size = 0
 
     for key, value in our_positions.items():
@@ -17,7 +12,7 @@ def compute_groups(our_positions: dict, ennemy_positions: dict, human_positions:
     init_pos = our_size[0]
     sizes = []
 
-    for key, value in ennemy_positions.items():
+    for key, value in enemy_positions.items():
         sizes.append([key, ceil(1.5 * value)])
 
     for key, value in human_positions.items():
@@ -27,35 +22,30 @@ def compute_groups(our_positions: dict, ennemy_positions: dict, human_positions:
 
     buffer = copy(our_size)
     buffer[0] = find_closest_target([our_size], sizes)
-    possibilities = [[buffer]]
+    possibilities = [[to_tuple(buffer, init_pos)]]
 
     for i in range(len(sizes)):
         j = i
         buffer_us = copy(buffer)
         buffer_split = []
         addresses = []
-        # TODO Limit minimal split size in a smarter way
         while j < len(sizes) and (buffer_us[1] - sizes[j][1]) >= sizes[j][1]:
 
             buffer_us[1] = buffer_us[1] - sizes[j][1]
-
             new_pos = find_closest(init_pos, sizes[j][0])
-
             new_target_pos = find_closest_target([[init_pos, buffer_us[1]]], sizes)
 
-            print(new_pos)
-
             if new_pos not in addresses + [new_target_pos]:
-                pos = copy(new_pos)
-                addresses.append(pos)
-                buffer_split.append([pos, sizes[j][1]])
+                addresses.append(new_pos)
+                buffer_split.append(to_tuple([new_pos, sizes[j][1]], init_pos))
                 buffer_us = copy(buffer_us)
                 buffer_us[0] = new_target_pos
-                possibility = [copy(buffer_us)] + buffer_split
+                possibility = [to_tuple(copy(buffer_us), init_pos)] + buffer_split
                 possibilities += [possibility]
 
             else:
-                if new_pos in addresses:
+                if new_pos in addresses:  # actually never occurs
+                    print("flag")
                     merge_with = [x for x, y in enumerate(addresses) if y == new_pos]
                     buffer_split[merge_with[0]][1] += sizes[j][1]
                     possibility = [copy(buffer_us)] + buffer_split
@@ -100,6 +90,18 @@ def find_closest_target(possibility, sizes):
     return find_closest(possibility[0][0], sizes[j][0])
 
 
-output = compute_groups(our_positions, ennemy_positions, human_positions)
-print("Returned : " + str(output))
-print("Length : " + str(len(output)))
+def to_tuple(move, pos):
+    return tuple((pos[0], pos[1], move[1], move[0][0], move[0][1]))
+
+
+# enemy_positions = {(2, 13): 2, (4, 12): 2, (5, 7): 2}
+# human_positions = {(10, 3): 4}
+# our_positions = {(2, 8): 11}
+#
+# start = time.time()
+# output = compute_groups(our_positions, enemy_positions, human_positions)
+# end = time.time()
+#
+# print("Returned : " + str(output))
+# print("Length : " + str(len(output)))
+# print(f"Time : {end - start}")
