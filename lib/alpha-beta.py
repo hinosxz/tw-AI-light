@@ -72,7 +72,8 @@ def get_successors(state: ndarray, species: int):
     return successors
 
 
-def check_conflict(cell, player_index):
+def check_conflict(current_cell: ndarray, player_index: int):
+    cell = copy(current_cell)
     nb_humans = cell[0]
     nb_player = cell[player_index]
     opponent_index = (player_index % 2) + 1
@@ -166,3 +167,7 @@ def alphabeta_search(species_played: str, state: ndarray, d=4):
 #         [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [1, 0, 0], [0, 0, 0]],
 #     ])
 # print(alphabeta_search("vampire", example))
+
+if __name__ == "__main__":
+    array = check_conflict(array([0, 3, 1]), 1)
+    print(array)
