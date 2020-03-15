@@ -1,8 +1,10 @@
 from models.game import Game
 from models.player import Player
 from heuristics.heuristic1 import heuristic1
-from lib.alpha-beta import alphabeta_search
+from lib.alpha_beta import alphabeta_search
+from lib.util import from_map_to_moves
 import argparse
+import numpy as np
 
 
 parser = argparse.ArgumentParser()
@@ -20,5 +22,8 @@ if __name__ == "__main__":
     while game.is_running:
         game.update_map()
         if game.is_running:
-            moves_dict = alphabeta_search(game.get_map(), game)
+            current_map = game.get_map().astype(np.int16)
+            new_state = alphabeta_search(player.type, game.get_map())
+            moves_dict = from_map_to_moves(current_map, new_state[1].astype(np.int16), player.type)
+            print(moves_dict)
             player.move(moves_dict)

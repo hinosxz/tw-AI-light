@@ -1,4 +1,8 @@
 from typing import List, Tuple
+from numpy import ndarray
+import numpy as np
+import itertools
+from lib.constants import TYPE_TO_POSITION_INDEX
 
 
 def manhattan_dist(d1, d2):
@@ -34,4 +38,27 @@ def distance_nb_coups(pos_1, pos_2):
     y_init -= nb_moves_diagonal * sign_integer(y_init - y_final)
     nb_moves_line = max(abs(x_init - x_final), abs(y_init - y_final))
     return nb_moves_diagonal + nb_moves_line
+
+def from_map_to_moves(initial_map: ndarray, final_map: ndarray, type:str):
+    moves_list = []
+    intermediate_map = np.subtract(final_map.copy(),initial_map.copy())
+    our_index = TYPE_TO_POSITION_INDEX[type]
+    for i, row in enumerate(intermediate_map):
+        for j, cell in enumerate(row):
+            if cell[our_index] < 0:
+                for k,l in itertools.product([-1,0,1],[-1,0,1]):
+                    if (i+k>0
+                    and i+k<initial_map.shape[0]
+                    and j+l>0
+                    and j+l<initial_map.shape[1]):
+                        if final_map[i+k,j+l,our_index] > 0:
+                            from_position = [i,j]
+                            to_position = [i+k,j+l]
+                            number = - cell[our_index]
+                            moves_list.append({
+                                            'from_position': from_position,
+                                            'number': number,
+                                            'to_position': to_position
+                                            })
+    return moves_list
 

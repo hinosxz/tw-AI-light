@@ -1,12 +1,14 @@
+from numpy import ndarray
 from lib.util import distance_nb_coups
+from lib.positions import get_all_positions
 
 
-def absolute_heuristic(our_positions:dict, opponent_positions:dict, humans_positions:dict):
+def absolute_heuristic(map: ndarray, type:str):
     """
     This heuristic is trying to quantify the advantaging position
     of a team uppon an other
     """
-
+    humans_positions, our_positions, opponent_positions = get_all_positions(map, type)
     w_us, w_adv, w_hum = 1, 1, 1
     score = 0
     
