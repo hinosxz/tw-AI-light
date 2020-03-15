@@ -78,7 +78,7 @@ def get_successors(state: ndarray, species: str):
     their_groups = get_opponent_positions(state, species)
     human_groups = get_human_positions(state)
 
-    possible_moves = compute_groups(our_groups, their_groups, human_groups)
+    possible_moves = compute_groups(our_groups, their_groups, human_groups, 1000)
 
     successors: List[ndarray] = []
     for moves in possible_moves:
