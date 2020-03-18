@@ -54,12 +54,12 @@ def get_moves(
     return [(*group_position, size, *to) for to in neighbors]
 
 
-def get_successors(state: ndarray, species: str):
+def get_successors(state: ndarray, species: str, groups_limit: int):
     our_groups = get_our_positions(state, species)
     their_groups = get_opponent_positions(state, species)
     human_groups = get_human_positions(state)
-
-    possible_moves = compute_groups(our_groups, their_groups, human_groups, 1000)
+    limit = groups_limit - len(our_groups)
+    possible_moves = compute_groups(our_groups, their_groups, human_groups, limit)
 
     successors: List[ndarray] = []
     for moves in possible_moves:
@@ -114,12 +114,13 @@ def check_conflict(current_cell: ndarray, player_index: int):
     return cell
 
 
-def alphabeta_search(species_played: str, state: ndarray, d=4):
+def alphabeta_search(species_played: str, state: ndarray, d=4, groups_limit=4):
     """
 
     :param species_played: Current game
     :param state: State of the current game
     :param d: Maximum depth
+    :param groups_limit: Maximum number of groups allowed
     :return: An action
     """
 
@@ -130,7 +131,7 @@ def alphabeta_search(species_played: str, state: ndarray, d=4):
         next_state = s
         moves = []
         successor_states, successor_move_options = get_successors(
-            state, TYPE_TO_POSITION_INDEX[species_played]
+            state, TYPE_TO_POSITION_INDEX[species_played], groups_limit
         )
         for k in range(len(successor_move_options)):
             successor_state = successor_states[k]
@@ -152,7 +153,7 @@ def alphabeta_search(species_played: str, state: ndarray, d=4):
         next_state = s
         moves = []
         successor_states, successor_move_options = get_successors(
-            state, TYPE_TO_OPPONENT_POSITION_INDEX[species_played]
+            state, TYPE_TO_OPPONENT_POSITION_INDEX[species_played], groups_limit
         )
         for k in range(len(successor_move_options)):
             successor_state = successor_states[k]
