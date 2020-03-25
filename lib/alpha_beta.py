@@ -81,13 +81,14 @@ def get_successors(state: ndarray, species: str, groups_limit: int):
     possible_moves = compute_groups(our_groups, their_groups, human_groups, limit)
 
     successors: List[ndarray] = []
+    species_index = TYPE_TO_POSITION_INDEX[species]
     for moves in possible_moves:
         successor = copy(state)
         for x_origin, y_origin, size, x_target, y_target in moves:
-            successor[x_origin, y_origin, species] -= size
-            successor[x_target, y_target, species] += size
+            successor[x_origin, y_origin, species_index] -= size
+            successor[x_target, y_target, species_index] += size
             successor[x_target, y_target] = check_conflict(
-                successor[x_target, y_target], species
+                successor[x_target, y_target], species_index
             )
         successors.append(successor)
     return successors, possible_moves
@@ -163,7 +164,7 @@ def alphabeta_search(
         next_state = s
         next_moves = moves
         successor_states, successor_move_options = get_successors(
-            s, TYPE_TO_POSITION_INDEX[species_played], groups_limit
+            s, species_played, groups_limit
         )
         for k in range(len(successor_move_options)):
             successor_state = successor_states[k]
@@ -219,7 +220,7 @@ def alphabeta_search(
         next_state = s
         next_moves = moves
         successor_states, successor_move_options = get_successors(
-            s, TYPE_TO_OPPONENT_POSITION_INDEX[species_played], groups_limit
+            s, OPPONENTS[species_played], groups_limit
         )
         for k in range(len(successor_move_options)):
             successor_state = successor_states[k]
