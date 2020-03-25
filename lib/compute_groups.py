@@ -1,7 +1,6 @@
 from math import ceil
 from operator import itemgetter
-from copy import copy
-from time import time
+from numpy import copy
 from typing import Dict, Tuple
 
 
@@ -11,8 +10,7 @@ def compute_groups(
     human_positions: Dict[Tuple[int, int], int],
     max_groups: int,
 ):
-    our_size = 0
-
+    our_size = [(0, 0), 0]
     for key, value in our_positions.items():
         # We initialize our group position with current position. TODO : manage multiples groups
         our_size = [key, value]
@@ -47,17 +45,17 @@ def compute_groups(
         addresses = []
         while (
             j < len(sizes)
-            and (buffer_us[1] - sizes[j][1]) >= sizes[j][1]
+            and (buffer_us[1]) - sizes[j][1] >= sizes[j][1]
             and (len(buffer_split) + 1 < max_groups)
         ):
             # We loop over each element, computing each splits possible, and trying to split more as much as possible
-            # No split criteria : if splitted group would be smaller than currently observed group. Maybe improvable ?
-            buffer_us[1] = buffer_us[1] - sizes[j][1]
+            # No split criteria : if split group would be smaller than currently observed group. Maybe improvable ?
+            buffer_us[1] -= sizes[j][1]
             new_pos = find_closest(init_pos, sizes[j][0])
             new_target_pos = find_closest_target([[init_pos, buffer_us[1]]], sizes)
 
             if new_pos not in addresses + [new_target_pos]:
-                # Goal is to merge doublons, as only 8 destinations, if we move, are possible
+                # Goal is to merge dupes, as only 8 destinations, if we move, are possible
                 # So if computed new destination was never seen, we include it in a list and store the possibility
                 addresses.append(new_pos)
                 buffer_split.append(to_tuple([new_pos, sizes[j][1]], init_pos))
