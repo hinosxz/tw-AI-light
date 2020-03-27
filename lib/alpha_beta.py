@@ -1,7 +1,7 @@
 from itertools import product
 from numpy import inf as infinity, ndarray, array, copy
 from numpy.random import binomial
-from typing import Iterable, Tuple, List
+from typing import Tuple, List
 
 from heuristics.absolute_heuristic import absolute_heuristic
 from lib.constants import TYPE_TO_POSITION_INDEX, TYPE_TO_OPPONENT_POSITION_INDEX
@@ -121,61 +121,77 @@ def alphabeta_search(species_played: str, state: ndarray, d=4):
     :return: An action
     """
 
-    def max_value(s: ndarray, alpha: int, beta: int, depth: int):
+    def max_value(
+        s: ndarray,
+        moves: Tuple[Tuple[int, int, int, int, int], ...],
+        alpha: int,
+        beta: int,
+        depth: int,
+    ):
         if cutoff_test(s, depth, d):
-            return evaluate(s, species_played), s
+            return evaluate(s, species_played), s, moves
         v = -infinity
         next_state = s
-        moves = []
+        next_moves = moves
         successor_states, successor_move_options = get_successors(
             state, TYPE_TO_POSITION_INDEX[species_played]
         )
         for k in range(len(successor_move_options)):
             successor_state = successor_states[k]
             successor_moves = successor_move_options[k]
-            next_min = min_value(successor_state, alpha, beta, depth + 1)[0]
+            next_min = min_value(
+                successor_state, successor_moves, alpha, beta, depth + 1
+            )[0]
             if next_min > v:
                 v = next_min
                 next_state = successor_state
-                moves = successor_moves
+                next_moves = successor_moves
             if v >= beta:
-                return v, next_state, moves
+                return v, next_state, next_moves
             alpha = max(alpha, v)
-        return v, next_state, moves
+        return v, next_state, next_moves
 
-    def min_value(s: ndarray, alpha: int, beta: int, depth: int):
+    def min_value(
+        s: ndarray,
+        moves: Tuple[Tuple[int, int, int, int, int], ...],
+        alpha: int,
+        beta: int,
+        depth: int,
+    ):
         if cutoff_test(s, depth, d):
-            return evaluate(s, OPPONENTS[species_played]), s
+            return evaluate(s, OPPONENTS[species_played]), s, moves
         v = infinity
         next_state = s
-        moves = []
+        next_moves = moves
         successor_states, successor_move_options = get_successors(
             state, TYPE_TO_OPPONENT_POSITION_INDEX[species_played]
         )
         for k in range(len(successor_move_options)):
             successor_state = successor_states[k]
             successor_moves = successor_move_options[k]
-            next_max = max_value(successor_state, alpha, beta, depth + 1)[0]
+            next_max = max_value(
+                successor_state, successor_moves, alpha, beta, depth + 1
+            )[0]
             if next_max < v:
                 v = next_max
                 next_state = successor_state
-                moves = successor_moves
+                next_moves = successor_moves
             if v <= alpha:
-                return v, next_state, moves
+                return v, next_state, next_moves
             beta = min(beta, v)
-        return v, next_state, moves
+        return v, next_state, next_moves
 
-    _value, _map, next_move_iterator = max_value(state, -infinity, infinity, 0)
-    next_moves = []
-    for x_origin, y_origin, size, x_target, y_target in next_move_iterator:
-        next_moves.append(
+    _value, _map, move_iterator = max_value(state, (), -infinity, infinity, 0)
+    chosen_moves = []
+    for x_origin, y_origin, size, x_target, y_target in move_iterator:
+        chosen_moves.append(
             {
                 "from_position": [x_origin, y_origin],
                 "number": size,
                 "to_position": [x_target, y_target],
             }
         )
-    return next_moves
+    return chosen_moves
 
 
 # Example state to test
