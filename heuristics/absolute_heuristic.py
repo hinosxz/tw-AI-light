@@ -70,6 +70,6 @@ def absolute_heuristic(state: ndarray, species_played: str):
                 value += w_hum / (distance_oppo_human * (1.01 - nb_human / nb_oppo))
             else:
                 probability_of_win = nb_oppo / (2 * nb_human)
-                value += probability_of_win * w_hum / distance_us_human - 0.5
+                value += probability_of_win * w_hum / distance_oppo_human - 0.5
         score -= value
     return score
