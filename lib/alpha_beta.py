@@ -2,12 +2,15 @@ from itertools import product
 from numpy import inf as infinity, ndarray, array, copy
 from numpy.random import binomial
 from typing import Tuple, List
+from time import time
 
 from heuristics.absolute_heuristic import absolute_heuristic
 from lib.constants import TYPE_TO_POSITION_INDEX, TYPE_TO_OPPONENT_POSITION_INDEX
 from lib.positions import get_positions
+from lib.TimeoutException import TimeoutException
 
 
+MAX_RESPONSE_TIME = 1.9
 OPPONENTS = {"vampire": "wolf", "wolf": "vampire"}
 
 
@@ -19,6 +22,11 @@ def game_is_over(state: ndarray):
 
 def cutoff_test(state: ndarray, depth: int, max_depth: int):
     return depth > max_depth or game_is_over(state)
+
+
+def timeout_test(start_time: float):
+    delta_time = time() - start_time
+    return delta_time > MAX_RESPONSE_TIME
 
 
 def evaluate(state: ndarray, game_type: str):
@@ -121,13 +129,18 @@ def alphabeta_search(species_played: str, state: ndarray, d=4):
     :return: An action
     """
 
+    start_time = time()
+
     def max_value(
         s: ndarray,
         moves: Tuple[Tuple[int, int, int, int, int], ...],
         alpha: int,
         beta: int,
         depth: int,
+        start: float,
     ):
+        if timeout_test(start):
+            raise TimeoutException(moves)
         if cutoff_test(s, depth, d):
             return evaluate(s, species_played), s, moves
         v = -infinity
@@ -139,9 +152,14 @@ def alphabeta_search(species_played: str, state: ndarray, d=4):
         for k in range(len(successor_move_options)):
             successor_state = successor_states[k]
             successor_moves = successor_move_options[k]
-            next_min = min_value(
-                successor_state, successor_moves, alpha, beta, depth + 1
-            )[0]
+
+            try:
+                next_min = min_value(
+                    successor_state, successor_moves, alpha, beta, depth + 1, start
+                )[0]
+            except TimeoutException:
+                raise TimeoutException(moves)
+
             if next_min > v:
                 v = next_min
                 next_state = successor_state
@@ -157,7 +175,10 @@ def alphabeta_search(species_played: str, state: ndarray, d=4):
         alpha: int,
         beta: int,
         depth: int,
+        start: float,
     ):
+        if timeout_test(start):
+            raise TimeoutException(moves)
         if cutoff_test(s, depth, d):
             return evaluate(s, OPPONENTS[species_played]), s, moves
         v = infinity
@@ -169,9 +190,14 @@ def alphabeta_search(species_played: str, state: ndarray, d=4):
         for k in range(len(successor_move_options)):
             successor_state = successor_states[k]
             successor_moves = successor_move_options[k]
-            next_max = max_value(
-                successor_state, successor_moves, alpha, beta, depth + 1
-            )[0]
+
+            try:
+                next_max = max_value(
+                    successor_state, successor_moves, alpha, beta, depth + 1, start
+                )[0]
+            except TimeoutException:
+                raise TimeoutException(moves)
+
             if next_max < v:
                 v = next_max
                 next_state = successor_state
@@ -181,8 +207,16 @@ def alphabeta_search(species_played: str, state: ndarray, d=4):
             beta = min(beta, v)
         return v, next_state, next_moves
 
-    _value, _map, move_iterator = max_value(state, (), -infinity, infinity, 0)
     chosen_moves = []
+
+    try:
+        _value, _map, move_iterator = max_value(
+            state, (), -infinity, infinity, 0, start_time
+        )
+    except TimeoutException as exception:
+        print("// Timeout exception raised: returned the best move known at the moment")
+        move_iterator = exception.moves
+
     for x_origin, y_origin, size, x_target, y_target in move_iterator:
         chosen_moves.append(
             {
