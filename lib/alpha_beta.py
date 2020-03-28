@@ -157,12 +157,8 @@ def alphabeta_search(species_played: str, state: ndarray, d=4):
                 next_min = min_value(
                     successor_state, successor_moves, alpha, beta, depth + 1, start
                 )[0]
-            except TimeoutException as e:
-                # We must return only the first depth moves
-                if depth > 1:
-                    raise TimeoutException(moves)
-                else:
-                    raise TimeoutException(e.moves)
+            except TimeoutException:
+                raise TimeoutException(next_moves)
 
             if next_min > v:
                 v = next_min
