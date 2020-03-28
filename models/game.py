@@ -103,7 +103,10 @@ class Game:
                         self.type = "wolf"
                     else:
                         raise IOError(
-                            "Cannot initialize the game: there must be at least 1 vampire/wolf in the start cell"
+                            "Cannot initialize the game: there must be at least 1 vampire/wolf in the start cell. {} "
+                            "vampires, {} werewolves, start cell ({}, {})".format(
+                                nb_vampires, nb_werewolves, y_start, x_start
+                            )
                         )
 
             self._map[y, x] = [nb_humans, nb_vampires, nb_werewolves]
