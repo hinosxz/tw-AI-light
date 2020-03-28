@@ -157,8 +157,12 @@ def alphabeta_search(species_played: str, state: ndarray, d=4):
                 next_min = min_value(
                     successor_state, successor_moves, alpha, beta, depth + 1, start
                 )[0]
-            except TimeoutException:
-                raise TimeoutException(moves)
+            except TimeoutException as e:
+                # We must return only the first depth moves
+                if depth > 1:
+                    raise TimeoutException(moves)
+                else:
+                    raise TimeoutException(e.moves)
 
             if next_min > v:
                 v = next_min
@@ -229,15 +233,13 @@ def alphabeta_search(species_played: str, state: ndarray, d=4):
 
 
 # Example state to test
-# example = array([
-#         [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 2, 0], [0, 0, 0], [0, 0, 0]],
-#         [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
-#         [[0, 0, 0], [0, 0, 0], [1, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
-#         [[0, 0, 0], [0, 3, 0], [0, 0, 3], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
-#         [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [1, 0, 0], [0, 0, 0]],
-#     ])
-# print(alphabeta_search("vampire", example))
-
-if __name__ == "__main__":
-    array = check_conflict(array([0, 3, 1]), 1)
-    print(array)
+example = array(
+    [
+        [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 2, 0], [0, 0, 0], [0, 0, 0]],
+        [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+        [[0, 0, 0], [0, 0, 0], [1, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+        [[0, 0, 0], [0, 3, 0], [0, 0, 3], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+        [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [1, 0, 0], [0, 0, 0]],
+    ]
+)
+print(alphabeta_search("vampire", example))
