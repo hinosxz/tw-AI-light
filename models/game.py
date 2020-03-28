@@ -58,17 +58,32 @@ class Game:
         msg_to_send = b"MOV"
         msg_to_send += pack("B", len(moves_list))
         for move in moves_list:
+            size = move["number"]
             to_pos_x, to_pos_y = move["to_position"]
             from_pos_x, from_pos_y = move["from_position"]
+
+            # Raise errors
+            try:
+                assert 0 <= size <= 255
+            except AssertionError:
+                raise ValueError(
+                    "// Value error: Group size must be between 0 and 255 - Group size = {}".format(
+                        move["number"]
+                    )
+                )
+            try:
+                assert move["to_position"] != move["from_position"]
+            except AssertionError:
+                raise ValueError(
+                    "Not moving is not an option - Requested move: {}".format(move)
+                )
 
             # Update the map
             self._map[to_pos_x, to_pos_y][TYPE_TO_POSITION_INDEX[self.type]] = (
                 self._map[from_pos_x, from_pos_y][TYPE_TO_POSITION_INDEX[self.type]]
-                - move["number"]
+                - size
             )
-            self._map[from_pos_x, from_pos_y][
-                TYPE_TO_POSITION_INDEX[self.type]
-            ] -= move["number"]
+            self._map[from_pos_x, from_pos_y][TYPE_TO_POSITION_INDEX[self.type]] -= size
 
             msg_to_send += pack("B", int(move["from_position"][1]))
             msg_to_send += pack("B", int(move["from_position"][0]))

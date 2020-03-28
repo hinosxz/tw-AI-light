@@ -39,7 +39,7 @@ def get_neighbors(cell, shape):
             and (0 <= x2 < p)
             and (0 <= y2 < q)
         )
-    ] + [cell]
+    ]
 
 
 def get_moves(
