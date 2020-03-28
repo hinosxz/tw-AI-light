@@ -40,7 +40,12 @@ class Player:
             }
         """
         for move in moves_list:
-            group = self._specie.get_group(move["from_position"])
+            try:
+                group = self._specie.get_group(move["from_position"])
+            except ValueError as exception:
+                print(exception)
+                continue
+
             if group.get_size() == move["number"]:
                 group.move(move["to_position"])
                 group.increase_size(
