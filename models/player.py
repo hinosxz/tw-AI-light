@@ -53,21 +53,11 @@ class Player:
                     )
                 )
 
-            if group.get_size() == move["number"]:
-                group.move(move["to_position"])
-                group.increase_size(
-                    self._game.get_map()[
-                        move["to_position"][0], move["to_position"][1]
-                    ][0]
-                )
-            elif group.get_size() > move["number"]:
-                pass
-            else:
-                raise ValueError(
-                    "You cannot move {} specie, the group on ({}) has a size of {}".format(
-                        move["number"], move["from_position"], group.get_size()
-                    )
-                )
+            group.move(move["to_position"])
+            group.increase_size(
+                self._game.get_map()[move["to_position"][0], move["to_position"][1]][0]
+            )
+
         self._game.send_move(moves_list)
 
     def get_species(self):
