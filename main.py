@@ -16,8 +16,15 @@ if __name__ == "__main__":
     game = Game(args.host, args.port)
     player = Player(args.name, game)
     print("You're playing {}".format(player.type))
+    turn = 0
     while game.is_running:
         game.update_map()
         if game.is_running:
+            turn += 1
             moves = alphabeta_search(game.type, game.get_map(), d=4)
-            player.move(moves)
+            print("Turn #{}, moves : {}".format(turn, moves))
+            try:
+                player.move(moves)
+            except ValueError as exception:
+                player.move([])
+                print(exception)

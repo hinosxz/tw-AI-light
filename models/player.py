@@ -46,6 +46,13 @@ class Player:
                 print(exception)
                 continue
 
+            if not (0 <= move["number"] <= 255):
+                raise ValueError(
+                    "// Value error: Group size must be between 0 and 255 - Group size = {}".format(
+                        move["number"]
+                    )
+                )
+
             if group.get_size() == move["number"]:
                 group.move(move["to_position"])
                 group.increase_size(
