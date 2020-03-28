@@ -1,7 +1,7 @@
 from socket import socket, AF_INET, SOCK_STREAM
 from struct import pack, unpack
 
-from numpy import zeros, uint8
+from numpy import zeros, int16
 from typing import Tuple, List
 
 from lib.constants import TYPE_TO_POSITION_INDEX
@@ -146,7 +146,7 @@ class Game:
         map_code = self._sock.recv(3).decode()
         assert map_code == "MAP"
         nb_changes: int = unpack("B", self._sock.recv(1))[0]
-        self._map = zeros((*self._shape, 3), dtype=uint8)
+        self._map = zeros((*self._shape, 3), dtype=int16)
         self._update_cells(nb_changes, is_init=True)
 
     def load_initial_parameters(self):
