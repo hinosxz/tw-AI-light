@@ -1,5 +1,4 @@
 from models.game import Game
-from models.player import Player
 from lib.alpha_beta import alphabeta_search
 from argparse import ArgumentParser
 
@@ -13,9 +12,8 @@ parser.add_argument("--port", "-P", help="the port to use", type=int, default=55
 args = parser.parse_args()
 
 if __name__ == "__main__":
-    game = Game(args.host, args.port)
-    player = Player(args.name, game)
-    print("You're playing {}".format(player.type))
+    game = Game(args.host, args.port, args.name)
+    print("You're playing {}".format(game.type))
     turn = 0
     while game.is_running:
         game.update_map()
@@ -24,7 +22,7 @@ if __name__ == "__main__":
             moves = alphabeta_search(game.type, game.get_map(), d=4)
             print("Turn #{}, moves : {}".format(turn, moves))
             try:
-                player.move(moves)
+                game.send_move(moves)
             except ValueError as exception:
-                player.move([])
+                game.send_move([])
                 print(exception)

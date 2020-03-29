@@ -23,9 +23,10 @@ class Game:
         port on which the server is listening
     """
 
-    def __init__(self, host="127.0.0.1", port=5555):
+    def __init__(self, host="127.0.0.1", port=5555, player_name="Player1"):
         self._sock = socket(AF_INET, SOCK_STREAM)
         self._sock.connect((host, port))
+        self._player_name = player_name
         self._shape = (0, 0)
         # Locations of humans
         self._houses: List[Tuple[int, int]] = []
@@ -34,6 +35,9 @@ class Game:
         self._map = zeros(0)
         self.type = ""
         self.is_running = True
+
+        self.send_name_to_server(player_name)
+        self.load_initial_parameters()
 
     def get_map(self):
         return self._map
