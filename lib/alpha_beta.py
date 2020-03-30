@@ -21,7 +21,7 @@ def game_is_over(state: ndarray):
 
 
 def cutoff_test(state: ndarray, depth: int, max_depth: int):
-    return depth > max_depth or game_is_over(state)
+    return depth >= max_depth or game_is_over(state)
 
 
 def timeout_test(start_time: float):
@@ -147,7 +147,7 @@ def alphabeta_search(species_played: str, state: ndarray, d=4):
         next_state = s
         next_moves = moves
         successor_states, successor_move_options = get_successors(
-            state, TYPE_TO_POSITION_INDEX[species_played]
+            s, TYPE_TO_POSITION_INDEX[species_played]
         )
         for k in range(len(successor_move_options)):
             successor_state = successor_states[k]
@@ -185,7 +185,7 @@ def alphabeta_search(species_played: str, state: ndarray, d=4):
         next_state = s
         next_moves = moves
         successor_states, successor_move_options = get_successors(
-            state, TYPE_TO_OPPONENT_POSITION_INDEX[species_played]
+            s, TYPE_TO_OPPONENT_POSITION_INDEX[species_played]
         )
         for k in range(len(successor_move_options)):
             successor_state = successor_states[k]
