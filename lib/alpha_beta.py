@@ -5,10 +5,10 @@ from typing import Tuple, List
 from time import time
 
 from heuristics.absolute_heuristic import absolute_heuristic
+from heuristics.heuristic_2 import heuristic_2
 from lib.constants import TYPE_TO_POSITION_INDEX, TYPE_TO_OPPONENT_POSITION_INDEX
 from lib.positions import get_positions
 from lib.TimeoutException import TimeoutException
-
 
 MAX_RESPONSE_TIME = 1.9
 OPPONENTS = {"vampire": "wolf", "wolf": "vampire"}
@@ -29,8 +29,19 @@ def timeout_test(start_time: float):
     return delta_time > MAX_RESPONSE_TIME
 
 
-def evaluate(state: ndarray, game_type: str):
-    return absolute_heuristic(state, game_type)
+def evaluate(state: ndarray, game_type: str, heuristic_played: str):
+    if heuristic_played == "absolute":
+        return absolute_heuristic(state, game_type)
+    else:
+        return heuristic_2(
+            state=state,
+            species_played=game_type,
+            population_weight=10000,
+            absolute_win_weight=1,
+            random_fight_weight=1,
+            human_win_weight=1,
+            winning_weight=100000,
+        )
 
 
 def get_neighbors(cell, shape):
@@ -92,37 +103,29 @@ def check_conflict(current_cell: ndarray, player_index: int):
             cell[player_index] += nb_humans
         else:
             probability_of_win = nb_player / (2 * nb_humans)
-            battle_won = binomial(1, probability_of_win)
-            if battle_won:
-                added_humans = binomial(nb_humans, probability_of_win)
-                cell[0] = 0
-                cell[player_index] = (
-                    binomial(nb_player, probability_of_win) + added_humans
-                )
-            else:
-                cell[player_index] = 0
-                cell[0] = binomial(nb_humans, 1 - probability_of_win)
+            cell[player_index] = 0
+            cell[0] = binomial(nb_humans, 1 - probability_of_win)
     elif nb_opponent > 0 and nb_player > 0:
         if nb_player >= 1.5 * nb_opponent:
             cell[opponent_index] = 0
         else:
-            if nb_player >= nb_opponent:
+            if nb_player > nb_opponent:
                 probability_of_win = nb_player / nb_opponent - 0.5
+                cell[opponent_index] = 0
+                cell[player_index] = round(probability_of_win * nb_player)
             else:
                 probability_of_win = nb_player / (2 * nb_opponent)
-            battle_won = binomial(1, probability_of_win)
-            if battle_won:
-                cell[opponent_index] = 0
-                cell[player_index] = binomial(nb_player, probability_of_win)
-            else:
                 cell[player_index] = 0
-                cell[opponent_index] = binomial(nb_opponent, 1 - probability_of_win)
+                cell[opponent_index] = round((1 - probability_of_win) * nb_player)
     return cell
 
 
-def alphabeta_search(species_played: str, state: ndarray, d=4):
+def alphabeta_search(
+    species_played: str, state: ndarray, d=4, heuristic_played: str = "heuristic2"
+):
     """
 
+    :param heuristic_played:
     :param species_played: Current game
     :param state: State of the current game
     :param d: Maximum depth
@@ -142,7 +145,7 @@ def alphabeta_search(species_played: str, state: ndarray, d=4):
         if timeout_test(start):
             raise TimeoutException(moves)
         if cutoff_test(s, depth, d):
-            return evaluate(s, species_played), s, moves
+            return evaluate(s, species_played, heuristic_played), s, moves
         v = -infinity
         next_state = s
         next_moves = moves
@@ -160,6 +163,8 @@ def alphabeta_search(species_played: str, state: ndarray, d=4):
             except TimeoutException:
                 raise TimeoutException(next_moves)
 
+            if depth == 0:
+                print(next_min)
             if next_min > v:
                 v = next_min
                 next_state = successor_state
@@ -180,7 +185,7 @@ def alphabeta_search(species_played: str, state: ndarray, d=4):
         if timeout_test(start):
             raise TimeoutException(moves)
         if cutoff_test(s, depth, d):
-            return evaluate(s, OPPONENTS[species_played]), s, moves
+            return evaluate(s, species_played, heuristic_played), s, moves
         v = infinity
         next_state = s
         next_moves = moves
@@ -213,6 +218,7 @@ def alphabeta_search(species_played: str, state: ndarray, d=4):
         _value, _map, move_iterator = max_value(
             state, (), -infinity, infinity, 0, start_time
         )
+        print(_value)
     except TimeoutException as exception:
         print("// Timeout exception raised: returned the best move known at the moment")
         move_iterator = exception.moves
@@ -238,4 +244,6 @@ example = array(
         [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [1, 0, 0], [0, 0, 0]],
     ]
 )
-print(alphabeta_search("vampire", example))
+
+if __name__ == "__main__":
+    print(alphabeta_search("vampire", example))

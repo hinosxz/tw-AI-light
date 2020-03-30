@@ -7,7 +7,7 @@ from lib.positions import get_human_positions, get_our_positions, get_opponent_p
 def absolute_heuristic(state: ndarray, species_played: str):
     """
     This heuristic is trying to quantify the advantaging position
-    of a team uppon an other
+    of a team upon an other
     """
 
     humans_positions, our_positions, opponent_positions = (
