@@ -3,11 +3,13 @@ from numpy import inf as infinity, ndarray, array, copy
 from numpy.random import binomial
 from typing import Tuple, List
 from time import time
+from treelib import Tree
+from uuid import uuid4
 
 from heuristics.absolute_heuristic import absolute_heuristic
 from heuristics.heuristic_2 import heuristic_2
 from lib.constants import TYPE_TO_POSITION_INDEX, TYPE_TO_OPPONENT_POSITION_INDEX
-from lib.positions import get_positions
+from lib.positions import get_positions, get_our_positions, get_opponent_positions
 from lib.TimeoutException import TimeoutException
 
 MAX_RESPONSE_TIME = 1.9
@@ -36,12 +38,22 @@ def evaluate(state: ndarray, game_type: str, heuristic_played: str):
         return heuristic_2(
             state=state,
             species_played=game_type,
-            population_weight=10000,
+            population_weight=10,
             absolute_win_weight=1,
             random_fight_weight=1,
-            human_win_weight=1,
+            human_win_weight=100,
             winning_weight=100000,
         )
+
+
+def get_our_size(state: ndarray, species_played: str):
+    our_positions = get_our_positions(state, species_played)
+    return sum(list(our_positions.values()))
+
+
+def get_opponent_size(state: ndarray, species_played: str):
+    their_positions = get_opponent_positions(state, species_played)
+    return sum(list(their_positions.values()))
 
 
 def get_neighbors(cell, shape):
@@ -133,6 +145,7 @@ def alphabeta_search(
     """
 
     start_time = time()
+    tree = Tree()
 
     def max_value(
         s: ndarray,
@@ -141,6 +154,8 @@ def alphabeta_search(
         beta: int,
         depth: int,
         start: float,
+        t: Tree,
+        parent: str,
     ):
         if timeout_test(start):
             raise TimeoutException(moves)
@@ -155,16 +170,30 @@ def alphabeta_search(
         for k in range(len(successor_move_options)):
             successor_state = successor_states[k]
             successor_moves = successor_move_options[k]
-
             try:
+                # For debugging purposes, add tree node with the computed score
+                uid = str(uuid4())
+                t.create_node(uid, uid, parent=parent)
+
                 next_min = min_value(
-                    successor_state, successor_moves, alpha, beta, depth + 1, start
+                    successor_state,
+                    successor_moves,
+                    alpha,
+                    beta,
+                    depth + 1,
+                    start,
+                    t,
+                    parent=uid,
                 )[0]
+
+                t.get_node(uid).tag = "{} - Us: {} vs Them: {}".format(
+                    next_min,
+                    get_our_size(successor_state, species_played),
+                    get_opponent_size(successor_state, species_played),
+                )
             except TimeoutException:
                 raise TimeoutException(next_moves)
 
-            if depth == 0:
-                print(next_min)
             if next_min > v:
                 v = next_min
                 next_state = successor_state
@@ -181,6 +210,8 @@ def alphabeta_search(
         beta: int,
         depth: int,
         start: float,
+        t: Tree,
+        parent: str,
     ):
         if timeout_test(start):
             raise TimeoutException(moves)
@@ -195,11 +226,27 @@ def alphabeta_search(
         for k in range(len(successor_move_options)):
             successor_state = successor_states[k]
             successor_moves = successor_move_options[k]
-
             try:
+                # For debugging purposes, add tree node with the computed score
+                uid = str(uuid4())
+                t.create_node(uid, uid, parent=parent)
+
                 next_max = max_value(
-                    successor_state, successor_moves, alpha, beta, depth + 1, start
+                    successor_state,
+                    successor_moves,
+                    alpha,
+                    beta,
+                    depth + 1,
+                    start,
+                    t,
+                    parent=uid,
                 )[0]
+
+                t.get_node(uid).tag = "{} - Us: {} vs Them: {}".format(
+                    next_max,
+                    get_our_size(successor_state, species_played),
+                    get_opponent_size(successor_state, species_played),
+                )
             except TimeoutException:
                 raise TimeoutException(moves)
 
@@ -214,11 +261,12 @@ def alphabeta_search(
 
     chosen_moves = []
 
+    tree.create_node("Root", "root")
     try:
         _value, _map, move_iterator = max_value(
-            state, (), -infinity, infinity, 0, start_time
+            state, (), -infinity, infinity, 0, start_time, tree, parent="root"
         )
-        print(_value)
+        # print(tree.show())
     except TimeoutException as exception:
         print("// Timeout exception raised: returned the best move known at the moment")
         move_iterator = exception.moves
@@ -237,13 +285,11 @@ def alphabeta_search(
 # Example state to test
 example = array(
     [
-        [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 2, 0], [0, 0, 0], [0, 0, 0]],
-        [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
-        [[0, 0, 0], [0, 0, 0], [1, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
-        [[0, 0, 0], [0, 3, 0], [0, 0, 3], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
-        [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [1, 0, 0], [0, 0, 0]],
+        [[0, 0, 0], [7, 0, 0], [0, 0, 0]],
+        [[0, 0, 8], [0, 0, 0], [0, 8, 0]],
+        [[0, 0, 0], [7, 0, 0], [0, 0, 0]],
     ]
 )
 
 if __name__ == "__main__":
-    print(alphabeta_search("vampire", example))
+    print(alphabeta_search("vampire", example, d=4))
