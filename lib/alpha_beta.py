@@ -7,7 +7,6 @@ from treelib import Tree
 from uuid import uuid4
 
 from heuristics import HEURISTICS
-
 from lib.constants import TYPE_TO_POSITION_INDEX, TYPE_TO_OPPONENT_POSITION_INDEX
 from lib.positions import get_positions, get_our_positions, get_opponent_positions
 from lib.TimeoutException import TimeoutException
@@ -94,6 +93,13 @@ def get_successors(state: ndarray, species: int):
 
 
 def check_conflict(current_cell: ndarray, player_index: int):
+    """
+    This function will make sure we don't engage in random battles and only simulate a potential win if we are
+    actually able to win the fight for sure
+    :param current_cell:
+    :param player_index:
+    :return: The cell after battle
+    """
     cell = copy(current_cell)
     nb_humans = cell[0]
     nb_player = cell[player_index]

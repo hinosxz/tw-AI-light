@@ -22,8 +22,8 @@ def compute_human_impact(
     if human_size <= our_size:
         local_human_score += (HUMAN_WIN_WEIGHT * human_size / distance) ** 2
     return local_human_score
-
-
+  
+  
 def human_impact(
     our_positions: Dict[Tuple[int, int], int],
     humans_positions: Dict[Tuple[int, int], int],
@@ -99,6 +99,6 @@ def heuristic_2(state: ndarray, species_played: str):
 
 if __name__ == "__main__":
     from lib.alpha_beta import example
-
+    # For testing purposes
     score = heuristic_2(state=example, species_played="vampire")
     print(score)
