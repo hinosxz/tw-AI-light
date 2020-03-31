@@ -40,22 +40,24 @@ class Player:
             }
         """
         for move in moves_list:
-            group = self._specie.get_group(move["from_position"])
-            if group.get_size() == move["number"]:
-                group.move(move["to_position"])
-                group.increase_size(
-                    self._game.get_map()[
-                        move["to_position"][0], move["to_position"][1]
-                    ][0]
-                )
-            elif group.get_size() > move["number"]:
-                pass
-            else:
+            try:
+                group = self._specie.get_group(move["from_position"])
+            except ValueError as exception:
+                print(exception)
+                continue
+
+            if not (0 <= move["number"] <= 255):
                 raise ValueError(
-                    "You cannot move {} specie, the group on ({}) has a size of {}".format(
-                        move["number"], move["from_position"], group.get_size()
+                    "// Value error: Group size must be between 0 and 255 - Group size = {}".format(
+                        move["number"]
                     )
                 )
+
+            group.move(move["to_position"])
+            group.increase_size(
+                self._game.get_map()[move["to_position"][0], move["to_position"][1]][0]
+            )
+
         self._game.send_move(moves_list)
 
     def get_species(self):

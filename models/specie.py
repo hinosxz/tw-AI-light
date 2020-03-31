@@ -43,7 +43,9 @@ class Specie:
         for group in self.get_groups():
             if group.get_position() == coordinates:
                 return group
-        raise ValueError("No group is on the position ({},{})".format(x, y))
+        raise ValueError(
+            "No group in ({},{}) - Groups: {}".format(x, y, self.get_groups())
+        )
 
     # def divide(self, group_1, nb1, nb2):
     #     group_1.change_size(nb1)

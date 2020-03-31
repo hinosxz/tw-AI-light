@@ -35,3 +35,6 @@ class Group:
 
     def increase_size(self, amount):
         self._size += amount
+
+    def __str__(self):
+        return "({}, {}) = {}".format(self._position_y, self._position_x, self._size)
