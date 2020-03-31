@@ -1,7 +1,7 @@
 # Description des algorithmes implémentés
 
 ## Logique de jeu
-Toute la logique de jeu est située dans un objet `Game` (`models/game.py`). On y retrouve notamment :
+Toute la logique de jeu est située dans un objet `Game` (`models/Game.py`). On y retrouve notamment :
 - les fonctions permettant de communiquer avec le socket serveur;
 - la carte actualisée nous permettant de déterminer les positions des différentes populations.
 
@@ -16,6 +16,11 @@ la carte stockée en mémoire.
 Dans `lib/positions` on trouve les fonctions permettant à partir d'une carte donnée de récupérer les positions
 des humains, des vampires ou des loups-garous.
 
+### Split groups
+`lib/compute_split_moves` contient les fonctions utilisées pour générer toutes les combinaisons de coups possibles
+en donnant la posibilité à chaque groupe de se diviser en 2. `lib/test_compute_split_moves` contient les tests
+unitaires pour ces fonctions.
+
 ### Timeout
 `lib/TimeoutException` contient la classe `TimeoutException`. Cette exception sera soulevée lorsque l'algorithme d'IA
 met trop de temps à répondre. Nous devons en effet répondre au serveur en moins de 2 secondes et nous retournerons
@@ -23,7 +28,7 @@ alors le meilleur coup déjà analysé sans parcourir la suite des coups possibl
 
 ### Util
 Dans `lib/util` se trouvent toutes les fonctions de base pouvant être réutilisées par différents algorithmes.
-Par exemple, `distance_nb_coups` qui retourne la distance en nombre de mouvements pour aller d'une position A à une
+Par exemple, `distance_nb_moves` qui retourne la distance en nombre de mouvements pour aller d'une position A à une
 position B.
 
 ### Constantes
@@ -33,28 +38,17 @@ position B.
 
 Pour une carte connue, il nous faut évaluer tous les états successifs possibles. Si on considère tous les déplacements
 possibles de toutes les divisions possibles pour un de nos groupes, nous aboutissons à une trop grande quantité d’états.
-Cela rend l’algorithme d’IA choisi peu performant.
+Cela rend l’algorithme incapable de répondre en moins de 2 secondes.
 
-Nous avons donc décidé de ne considérer que certains états “intelligents”. Ainsi le fichier `compute_groups` propose tous
-les états pertinents, c’est à dire toutes les divisions pertinentes et les déplacements pertinents autour d’un groupe
-initial. Pour ce faire, nous observons la carte avec les groupes d’ennemis et d’humains et nous allons ranger ces
-groupes par taille croissante (en prenant en compte les coefficients nécessaires à la victoire lors d’un conflit).
-On obtient donc une liste triée par taille des `tailles / positions` des groupes d’humains et des
-`1.5 * tailles / positions` des groupes d’ennemis.
+Nous avons une fonction `compute_all_available_moves` dans `lib/compute_split_moves` permettant de calculer toutes
+les combinaisons possibles de déplacements avec une séparation en 2 groupes maximum à chaque tour. Mais là encore
+le temps de calcul n'est pas envisageable.
 
-On va parcourir cette liste pour former des séparations pertinentes de notre groupe. Pour chaque taille de groupe dans
-la liste, on va vérifier qu’en formant une entité de cette taille sur la carte, on ne rende pas l’entité restante
-vulnérable.
+Nous avons pensé à réduire le facteur de branchement de l'arbre des possibles en réalisant une première estimation
+de la pertinence d'une carte mais nous avons manqué de temps pour l'implémenter.
 
-![Schema](images/schema.png)
-
-Cet algorithme est implémenté dans le fichier `compute_groups.py` du dossier lib. Ce fichier comporte deux fonctions :
-- la fonction `compute_groups` qui crée des sous-groupes de manière réfléchie comme on a pu le voir précédemment;
-- la fonction `find_closest` qui va proposer un placement intelligent pour chaque sous-groupe créé.
-Ainsi, on va déplacer un sous-groupe dans la direction du groupe adversaire pour lequel il a été créé
-(cf. fonctionnement de compute_groups).
-
-L’obtention de tous les états possibles se fait grâce à la fonction `get_successors` dans `lib/alpha_beta.py`.
+Nous avons donc gardé l'implémentation naïve de ne pas se diviser et de considérer uniquement les 8 positions
+voisines comme coups possibles.
 
 
 ## Algorithme d’IA
@@ -108,4 +102,4 @@ sans toutefois s’intéresser aux groupes plus nombreux que nous.
 - les effectifs ennemis à proximité : même stratégie en observant le facteur 1.5. Si les ennemis sont 1.5 fois plus
 nombreux que nous, l’heuristique prend en compte un malus de score.
 
-Celle-ci est implémentée dans `heuristics/heuristic_2.py`.
+Celle-ci est implémentée dans `heuristics/monogroup.py`.
