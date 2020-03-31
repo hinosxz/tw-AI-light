@@ -35,3 +35,20 @@ def distance_nb_coups(pos_1: Tuple[int, int], pos_2: Tuple[int, int]):
     y_init -= nb_moves_diagonal * sign_integer(y_init - y_final)
     nb_moves_line = max(abs(x_init - x_final), abs(y_init - y_final))
     return nb_moves_diagonal + nb_moves_line
+
+
+def get_neighbors(cell: Tuple[int, int], shape: Tuple[int, int, int]):
+    p, q = shape[0], shape[1]
+    i, j = cell
+    return [
+        (x2, y2)
+        for x2 in range(i - 1, i + 2)
+        for y2 in range(j - 1, j + 2)
+        if (
+            -1 < i < p
+            and -1 < j < q
+            and (i != x2 or j != y2)
+            and (0 <= x2 < p)
+            and (0 <= y2 < q)
+        )
+    ]

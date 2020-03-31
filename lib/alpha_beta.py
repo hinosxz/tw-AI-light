@@ -6,7 +6,7 @@ from treelib import Tree
 from uuid import uuid4
 
 from heuristics import HEURISTICS
-from lib.constants import TYPE_TO_POSITION_INDEX, TYPE_TO_OPPONENT_POSITION_INDEX
+from lib.constants import TYPE_TO_POSITION_INDEX
 from lib.compute_groups import compute_groups
 from lib.positions import (
     get_positions,
@@ -50,23 +50,6 @@ def get_opponent_size(state: ndarray, species_played: str):
     return sum(list(their_positions.values()))
 
 
-def get_neighbors(cell, shape):
-    p, q = shape[0], shape[1]
-    i, j = cell
-    return [
-        (x2, y2)
-        for x2 in range(i - 1, i + 2)
-        for y2 in range(j - 1, j + 2)
-        if (
-            -1 < i < p
-            and -1 < j < q
-            and (i != x2 or j != y2)
-            and (0 <= x2 < p)
-            and (0 <= y2 < q)
-        )
-    ]
-
-
 def get_moves(
     group_position: Tuple[int, int], size: int, neighbors: List[Tuple[int, int]]
 ):
@@ -78,7 +61,9 @@ def get_successors(state: ndarray, species: str, groups_limit: int):
     their_groups = get_opponent_positions(state, species)
     human_groups = get_human_positions(state)
     limit = groups_limit - len(our_groups)
-    possible_moves = compute_groups(our_groups, their_groups, human_groups, limit)
+    possible_moves = compute_groups(
+        our_groups, their_groups, human_groups, state.shape, limit
+    )
 
     successors: List[ndarray] = []
     species_index = TYPE_TO_POSITION_INDEX[species]
@@ -131,7 +116,11 @@ def check_conflict(current_cell: ndarray, player_index: int):
 
 
 def alphabeta_search(
-    species_played: str, state: ndarray, d=4, heuristic_played: str = "heuristic2", groups_limit=4
+    species_played: str,
+    state: ndarray,
+    d=4,
+    heuristic_played: str = "heuristic2",
+    groups_limit=4,
 ):
     """
 
