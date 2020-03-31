@@ -5,6 +5,9 @@ https://github.com/Succo/twilight
 
 ![Game board](images/board.png)
 
+## Implementation details
+A detailed explanation of our strategies and algorithms is available (in French) [here](DETAILS.md)
+
 ## How to play
 
 ### Requirements
