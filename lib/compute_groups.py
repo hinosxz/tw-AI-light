@@ -1,3 +1,4 @@
+import itertools
 from copy import copy
 from math import ceil
 from operator import itemgetter
@@ -13,11 +14,10 @@ def compute_groups(
     human_positions: Dict[Tuple[int, int], int],
     max_groups: int,
 ):
-    our_size = [(0, 0), 0]
+    our_groups = []
     for key, value in our_positions.items():
         # We initialize our group position with current position. TODO : manage multiples groups
-        our_size = [key, value]
-    init_pos = our_size[0]
+        our_groups.append([key, value])
     sizes = []
 
     for key, value in enemy_positions.items():
@@ -32,11 +32,21 @@ def compute_groups(
     if max_groups == 1:
         # If we cannot split, we only find most useful direction for the main group to aim for
         # CURRENT MOST USEFUL DIRECTION : to the biggest killable group
-        buffer = copy(our_size)
-        buffer[0] = find_closest_target([our_size], sizes)
+        init_pos = our_groups[0][0]
+        buffer = copy(our_groups[0])
+        buffer[0] = find_closest_target([our_groups[0]], sizes)
         possibilities = [[to_move_list(buffer, init_pos)]]
         return possibilities
 
+    moves = []
+    for our_size in our_groups:
+        moves.append(compute_moves(our_size, sizes, max_groups))
+
+    return list(itertools.product(*moves))
+
+
+def compute_moves(our_size, sizes, max_groups):
+    init_pos = our_size[0]
     buffer = copy(our_size)
     buffer[0] = find_closest_target([our_size], sizes)
     possibilities = [[to_move_list(buffer, init_pos)]]
@@ -138,12 +148,13 @@ def to_move_list(move: Tuple[Tuple[int, int], int], pos: Tuple[int, int]):
     return [pos[0], pos[1], target_size, target_pos[0], target_pos[1]]
 
 
-# enemy_positions = {(2, 13): 2, (4, 12): 2, (5, 7): 2}
-# human_positions = {(10, 3): 4}
-# our_positions = {(2, 8): 11}
+# from time import time
+# enemy_pos = {(2, 13): 2, (4, 12): 2, (5, 7): 2}
+# human_pos = {(10, 3): 4}
+# our_pos = {(2, 8): 11, (19, 15): 11}
 #
 # start = time()
-# output = compute_groups(our_positions, enemy_positions, human_positions, 4)
+# output = compute_groups(our_pos, enemy_pos, human_pos, 4)
 # end = time()
 #
 # print("Returned : " + str(output))
