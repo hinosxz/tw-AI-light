@@ -67,3 +67,16 @@ def get_moves(
     :return: A list of move tuples from group_position to each neighbor
     """
     return [(*group_position, size, *to) for to in neighbors]
+
+
+def flatten(array: Tuple[List[Tuple[int, int, int, int, int]]]):
+    """
+    :param array:
+    :return:
+    Flattens move tuple a single level deep
+    """
+    flat_list = []
+    for sublist in array:
+        for item in sublist:
+            flat_list.append(item)
+    return flat_list

@@ -1,5 +1,10 @@
-from typing import List, Tuple
-from lib.util import get_neighbors, get_moves
+from typing import List, Tuple, Dict
+from itertools import product
+from numpy import ndarray
+
+from lib.util import get_neighbors, get_moves, flatten
+
+LIMIT_NB_GROUPS = 1
 
 
 def couple_size_split(size: int):
@@ -24,7 +29,7 @@ def compute_all_couple_targets(next_positions: List[Tuple[int, int]]):
 
 
 def compute_all_possible_moves_for_one_group(
-    size: int, cell: Tuple[int, int], shape: Tuple[int, int]
+    size: int, cell: Tuple[int, int], shape: Tuple[int, int, int]
 ):
     next_positions = get_neighbors(cell, shape, True)
     moves_without_split = [[move] for move in get_moves(cell, size, next_positions)]
@@ -40,3 +45,31 @@ def compute_all_possible_moves_for_one_group(
                 local_moves.append((*cell, second_size, *second_pos))
             moves.append(local_moves)
     return moves
+
+
+def compute_all_possible_moves(
+    groups: Dict[Tuple[int, int], int], shape: Tuple[int, int, int]
+):
+    if len(groups.keys()) == LIMIT_NB_GROUPS:
+        possible_moves_per_group = [
+            get_moves(group_position, size, get_neighbors(group_position, shape))
+            for group_position, size in groups.items()
+        ]
+        possible_moves: List[Tuple[Tuple[int, int, int, int, int], ...]] = list(
+            product(*possible_moves_per_group)
+        )
+        return possible_moves
+
+    possible_moves_per_group = [
+        compute_all_possible_moves_for_one_group(size, group_position, shape)
+        for group_position, size in groups.items()
+    ]
+
+    possible_moves: List[Tuple[Tuple[int, int, int, int, int], ...]] = list(
+        product(*possible_moves_per_group)
+    )
+    return [flatten(moves) for moves in possible_moves]
+
+
+if __name__ == "__main__":
+    compute_all_possible_moves(groups={(0, 0): 2, (2, 2): 2}, shape=(3, 3, 3))

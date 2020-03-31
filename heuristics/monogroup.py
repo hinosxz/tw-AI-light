@@ -62,9 +62,9 @@ def compute_opponent_impact(
     elif opponent_size >= 1.5 * our_size:
         local_opponent_score = -(ABSOLUTE_WIN_WEIGHT * opponent_size / distance) ** 2
     elif our_size > opponent_size:
-        local_opponent_score = ABSOLUTE_WIN_WEIGHT * opponent_size / (distance ** 2)
+        local_opponent_score = ABSOLUTE_WIN_WEIGHT * opponent_size / distance
     else:
-        local_opponent_score = -ABSOLUTE_WIN_WEIGHT * our_size / (distance ** 2)
+        local_opponent_score = -ABSOLUTE_WIN_WEIGHT * our_size / distance
     return local_opponent_score
 
 
