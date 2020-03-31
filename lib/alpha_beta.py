@@ -8,68 +8,49 @@ from uuid import uuid4
 
 from heuristics import HEURISTICS
 from lib.constants import TYPE_TO_POSITION_INDEX, TYPE_TO_OPPONENT_POSITION_INDEX
-from lib.positions import get_positions, get_our_positions, get_opponent_positions
+from lib.positions import get_positions, get_our_size, get_opponent_size
 from lib.TimeoutException import TimeoutException
+from lib.util import get_neighbors, get_moves
 
 MAX_RESPONSE_TIME = 1.9
 OPPONENTS = {"vampire": "wolf", "wolf": "vampire"}
 
 
-def game_is_over(state: ndarray):
+def is_game_over(state: ndarray):
     vampires = get_positions(state, 1).keys()
     werewolves = get_positions(state, 2).keys()
     return len(vampires) == 0 or len(werewolves) == 0
 
 
-def cutoff_test(state: ndarray, depth: int, max_depth: int):
-    return depth >= max_depth or game_is_over(state)
+def is_cutoff_state(state: ndarray, depth: int, max_depth: int):
+    return depth >= max_depth or is_game_over(state)
 
 
-def timeout_test(start_time: float):
+def has_timed_out(start_time: float):
     delta_time = time() - start_time
     return delta_time > MAX_RESPONSE_TIME
 
 
-def evaluate(state: ndarray, game_type: str, heuristic_played: str):
+def evaluate(state: ndarray, game_type: str, heuristic_played: str) -> float:
+    """
+    Evaluate a state given a certain heuristic
+    :param state:
+    :param game_type:
+    :param heuristic_played:
+    :return: An integer score
+    """
     heuristic = HEURISTICS[heuristic_played]
     return heuristic(state, game_type)
 
 
-def get_our_size(state: ndarray, species_played: str):
-    our_positions = get_our_positions(state, species_played)
-    return sum(list(our_positions.values()))
-
-
-def get_opponent_size(state: ndarray, species_played: str):
-    their_positions = get_opponent_positions(state, species_played)
-    return sum(list(their_positions.values()))
-
-
-def get_neighbors(cell, shape):
-    p, q = shape[0], shape[1]
-    i, j = cell
-    return [
-        (x2, y2)
-        for x2 in range(i - 1, i + 2)
-        for y2 in range(j - 1, j + 2)
-        if (
-            -1 < i < p
-            and -1 < j < q
-            and (i != x2 or j != y2)
-            and (0 <= x2 < p)
-            and (0 <= y2 < q)
-        )
-    ]
-
-
-def get_moves(
-    group_position: Tuple[int, int], size: int, neighbors: List[Tuple[int, int]]
-):
-    return [(*group_position, size, *to) for to in neighbors]
-
-
-def get_successors(state: ndarray, species: int):
-    groups = get_positions(state, species)
+def get_successors(state: ndarray, species_index: int):
+    """
+    Given a map and a species, it computes interesting moves to generate a list of successor states worth evaluating
+    :param state:
+    :param species_index:
+    :return: The list of successor maps and related moves
+    """
+    groups = get_positions(state, species_index)
 
     possible_moves_per_group = [
         get_moves(group_position, size, get_neighbors(group_position, state.shape))
@@ -83,10 +64,10 @@ def get_successors(state: ndarray, species: int):
     for moves in possible_moves:
         successor = copy(state)
         for x_origin, y_origin, size, x_target, y_target in moves:
-            successor[x_origin, y_origin, species] -= size
-            successor[x_target, y_target, species] += size
+            successor[x_origin, y_origin, species_index] -= size
+            successor[x_target, y_target, species_index] += size
             successor[x_target, y_target] = check_conflict(
-                successor[x_target, y_target], species
+                successor[x_target, y_target], species_index
             )
         successors.append(successor)
     return successors, possible_moves
@@ -129,15 +110,15 @@ def check_conflict(current_cell: ndarray, player_index: int):
 
 
 def alphabeta_search(
-    species_played: str, state: ndarray, d=4, heuristic_played: str = "heuristic2"
+    species_played: str, state: ndarray, d=4, heuristic_played: str = "monogroup"
 ):
     """
-
-    :param heuristic_played:
+    MiniMax algorithm with alpha-beta pruning
+    :param heuristic_played: Choice of heuristic
     :param species_played: Current game
     :param state: State of the current game
     :param d: Maximum depth
-    :return: An action
+    :return: The list of best moves to perform this turn
     """
 
     start_time = time()
@@ -153,9 +134,9 @@ def alphabeta_search(
         t: Tree,
         parent: str,
     ):
-        if timeout_test(start):
+        if has_timed_out(start):
             raise TimeoutException(moves)
-        if cutoff_test(s, depth, d):
+        if is_cutoff_state(s, depth, d):
             return evaluate(s, species_played, heuristic_played), s, moves
         v = -infinity
         next_state = s
@@ -209,9 +190,9 @@ def alphabeta_search(
         t: Tree,
         parent: str,
     ):
-        if timeout_test(start):
+        if has_timed_out(start):
             raise TimeoutException(moves)
-        if cutoff_test(s, depth, d):
+        if is_cutoff_state(s, depth, d):
             return evaluate(s, species_played, heuristic_played), s, moves
         v = infinity
         next_state = s
