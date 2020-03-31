@@ -1,4 +1,3 @@
-from .absolute_heuristic import absolute_heuristic
-from .heuristic_2 import heuristic_2
+from .monogroup import monogroup_heuristic
 
-HEURISTICS = {"absolute": absolute_heuristic, "heuristic2": heuristic_2}
+HEURISTICS = {"monogroup": monogroup_heuristic}

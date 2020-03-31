@@ -10,7 +10,7 @@ parser.add_argument(
 )
 parser.add_argument("--port", "-P", help="the port to use", type=int, default=5555)
 parser.add_argument(
-    "--heuristic", help="which heuristic to use", type=str, default="heuristic2"
+    "--heuristic", help="which heuristic to use", type=str, default="monogroup"
 )
 args = parser.parse_args()
 

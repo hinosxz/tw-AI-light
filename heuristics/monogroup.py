@@ -81,7 +81,7 @@ def opponent_impact(
     return opponent_impact_score
 
 
-def heuristic_2(state: ndarray, species_played: str):
+def monogroup_heuristic(state: ndarray, species_played: str):
     humans_positions, our_positions, opponent_positions = (
         get_human_positions(state),
         get_our_positions(state, species_played),
@@ -101,5 +101,5 @@ if __name__ == "__main__":
     from lib.alpha_beta import example
 
     # For testing purposes
-    score = heuristic_2(state=example, species_played="vampire")
+    score = monogroup_heuristic(state=example, species_played="vampire")
     print(score)

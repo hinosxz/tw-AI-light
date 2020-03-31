@@ -110,7 +110,7 @@ def check_conflict(current_cell: ndarray, player_index: int):
 
 
 def alphabeta_search(
-    species_played: str, state: ndarray, d=4, heuristic_played: str = "heuristic2"
+    species_played: str, state: ndarray, d=4, heuristic_played: str = "monogroup"
 ):
     """
     MiniMax algorithm with alpha-beta pruning
