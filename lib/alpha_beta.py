@@ -6,16 +6,14 @@ from time import time
 from treelib import Tree
 from uuid import uuid4
 
-from heuristics.absolute_heuristic import absolute_heuristic
-from heuristics.heuristic_2 import heuristic_2
+from heuristics import HEURISTICS
+
 from lib.constants import TYPE_TO_POSITION_INDEX, TYPE_TO_OPPONENT_POSITION_INDEX
 from lib.positions import get_positions, get_our_positions, get_opponent_positions
 from lib.TimeoutException import TimeoutException
 
 MAX_RESPONSE_TIME = 1.9
 OPPONENTS = {"vampire": "wolf", "wolf": "vampire"}
-
-HEURISTIC_DICT = {"absolute": absolute_heuristic, "heuristic2": heuristic_2}
 
 
 def game_is_over(state: ndarray):
@@ -34,7 +32,8 @@ def timeout_test(start_time: float):
 
 
 def evaluate(state: ndarray, game_type: str, heuristic_played: str):
-    return HEURISTIC_DICT[heuristic_played](state=state, species_played=game_type)
+    heuristic = HEURISTICS[heuristic_played]
+    return heuristic(state, game_type)
 
 
 def get_our_size(state: ndarray, species_played: str):
