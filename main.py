@@ -1,4 +1,4 @@
-from models.game import Game
+from models.Game import Game
 from lib.alpha_beta import alphabeta_search
 from argparse import ArgumentParser
 from time import sleep
