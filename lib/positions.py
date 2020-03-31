@@ -24,3 +24,13 @@ def get_opponent_positions(state: ndarray, species_played: str):
 
 def get_our_positions(state: ndarray, species_played: str):
     return get_positions(state, TYPE_TO_POSITION_INDEX[species_played])
+
+
+def get_our_size(state: ndarray, species_played: str):
+    our_positions = get_our_positions(state, species_played)
+    return sum(list(our_positions.values()))
+
+
+def get_opponent_size(state: ndarray, species_played: str):
+    their_positions = get_opponent_positions(state, species_played)
+    return sum(list(their_positions.values()))
