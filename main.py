@@ -26,7 +26,6 @@ if __name__ == "__main__":
             moves = alphabeta_search(
                 game.type, game.get_map(), d=4, heuristic_played=args.heuristic
             )
-            print("Turn #{}, moves : {}".format(turn, moves))
             try:
                 game.send_move(moves)
             except ValueError as exception:

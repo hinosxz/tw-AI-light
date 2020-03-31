@@ -1,5 +1,4 @@
-from itertools import product
-from numpy import inf as infinity, ndarray, array, copy
+from numpy import inf as infinity, ndarray, array, copy, array_equal
 from numpy.random import binomial
 from typing import Tuple, List
 from time import time
@@ -10,7 +9,7 @@ from heuristics import HEURISTICS
 from lib.constants import TYPE_TO_POSITION_INDEX, TYPE_TO_OPPONENT_POSITION_INDEX
 from lib.positions import get_positions, get_our_size, get_opponent_size
 from lib.TimeoutException import TimeoutException
-from lib.util import get_neighbors, get_moves
+from lib.compute_split_moves import compute_all_possible_moves
 
 MAX_RESPONSE_TIME = 1.9
 OPPONENTS = {"vampire": "wolf", "wolf": "vampire"}
@@ -52,14 +51,8 @@ def get_successors(state: ndarray, species_index: int):
     """
     groups = get_positions(state, species_index)
 
-    possible_moves_per_group = [
-        get_moves(group_position, size, get_neighbors(group_position, state.shape))
-        for group_position, size in groups.items()
-    ]
-    possible_moves: List[Tuple[Tuple[int, int, int, int, int], ...]] = list(
-        product(*possible_moves_per_group)
-    )
-
+    possible_moves = compute_all_possible_moves(groups, state.shape)
+    filtered_possible_moves = []
     successors: List[ndarray] = []
     for moves in possible_moves:
         successor = copy(state)
@@ -69,8 +62,10 @@ def get_successors(state: ndarray, species_index: int):
             successor[x_target, y_target] = check_conflict(
                 successor[x_target, y_target], species_index
             )
-        successors.append(successor)
-    return successors, possible_moves
+        if not array_equal(state, successor):
+            successors.append(successor)
+            filtered_possible_moves.append(moves)
+    return successors, filtered_possible_moves
 
 
 def check_conflict(current_cell: ndarray, player_index: int):

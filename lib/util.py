@@ -27,15 +27,20 @@ def distance_nb_moves(pos_1: Tuple[int, int], pos_2: Tuple[int, int]):
     return nb_moves_diagonal + nb_moves_line
 
 
-def get_neighbors(cell: Tuple[int, int], shape: Tuple[int, int, int]):
+def get_neighbors(
+    cell: Tuple[int, int],
+    shape: Tuple[int, int, int],
+    with_start_position: bool = False,
+):
     """
     :param cell:
     :param shape:
+    :param with_start_position
     :return: The neighbor cells of the given cell, respecting the map shape
     """
     p, q = shape[0], shape[1]
     i, j = cell
-    return [
+    neighbors = [
         (x2, y2)
         for x2 in range(i - 1, i + 2)
         for y2 in range(j - 1, j + 2)
@@ -47,6 +52,9 @@ def get_neighbors(cell: Tuple[int, int], shape: Tuple[int, int, int]):
             and (0 <= y2 < q)
         )
     ]
+    if with_start_position:
+        neighbors.append((i, j))
+    return neighbors
 
 
 def get_moves(
@@ -59,3 +67,16 @@ def get_moves(
     :return: A list of move tuples from group_position to each neighbor
     """
     return [(*group_position, size, *to) for to in neighbors]
+
+
+def flatten(array: Tuple[List[Tuple[int, int, int, int, int]]]):
+    """
+    :param array:
+    :return:
+    Flattens move tuple a single level deep
+    """
+    flat_list = []
+    for sublist in array:
+        for item in sublist:
+            flat_list.append(item)
+    return flat_list
