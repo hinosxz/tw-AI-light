@@ -3,7 +3,7 @@ AI aiming at winning a game of Vampires vs Werewolves.
 See a non-official implementation of the game server here:
 https://github.com/Succo/twilight
 
-![Game board](images/board.png)
+![Game board](images/loup_garou.png)
 
 ## Implementation details
 A detailed explanation of our strategies and algorithms is available (in French) [here](DETAILS.md)
@@ -30,7 +30,7 @@ List of optional parameters
 - `name` the in-game name of your player. Default: `Group 3`
 - `host` IP address of the game server. Default: `127.0.0.1`
 - `port` port on which to access the game server. Default: `5555`
-- `heuristic` for debugging purposes. Default: `heuristic2`
+- `heuristic` for debugging purposes. Default: `monogroup` (but there are no other heuristic available)
 
 ## Development setup
 

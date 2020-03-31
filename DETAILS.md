@@ -18,7 +18,7 @@ des humains, des vampires ou des loups-garous.
 
 ### Split groups
 `lib/compute_split_moves` contient les fonctions utilisées pour générer toutes les combinaisons de coups possibles
-en donnant la posibilité à chaque groupe de se diviser en 2. `lib/test_compute_split_moves` contient les tests
+en donnant la possibilité à chaque groupe de se diviser en 2. `lib/test_compute_split_moves` contient les tests
 unitaires pour ces fonctions.
 
 ### Timeout
@@ -61,7 +61,7 @@ Notre implémentation de la fonction de maximisation peut-être résumée comme 
 - Si on approche les 2 secondes limites d'analyse, soulève une `TimeoutException`
 - Si on atteint un état final (partie terminée ou profondeur max atteinte), retourne le score calculé, la carte
 évaluée ainsi que les coups à jouer pour en arriver là
-- Sinonon génère tous les états successeurs et calcule leur score en appelant la fonction de minimisation sur chacun.
+- Sinon on génère tous les états successeurs et calcule leur score en appelant la fonction de minimisation sur chacun.
 On cherche ensuite le maximum parmi chacun de ces scores et on retourne la carte et les coups associés.
 
 La fonction de minimisation fonctionne de la même façon en inversant les procédés de maximisation et minimisation.
