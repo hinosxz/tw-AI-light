@@ -1,6 +1,6 @@
 from numpy import ndarray
 
-from lib.util import distance_nb_coups
+from lib.util import distance_nb_moves
 from lib.positions import get_human_positions, get_our_positions, get_opponent_positions
 
 
@@ -27,7 +27,7 @@ def absolute_heuristic(state: ndarray, species_played: str):
         value = 0
         for oppo_position in opponent_positions.keys():
             nb_oppo = opponent_positions[oppo_position]
-            distance_us_oppo = distance_nb_coups(us_position, oppo_position)
+            distance_us_oppo = distance_nb_moves(us_position, oppo_position)
             if nb_us >= 1.5 * nb_oppo:
                 value += w_adv / (distance_us_oppo * (1.51 - nb_oppo / nb_us))
             else:
@@ -39,7 +39,7 @@ def absolute_heuristic(state: ndarray, species_played: str):
 
         for human_position in humans_positions.keys():
             nb_human = humans_positions[human_position]
-            distance_us_human = distance_nb_coups(us_position, human_position)
+            distance_us_human = distance_nb_moves(us_position, human_position)
             if nb_us >= nb_human:
                 value += w_hum / (distance_us_human * (1.01 - nb_human / nb_us))
             else:
@@ -54,7 +54,7 @@ def absolute_heuristic(state: ndarray, species_played: str):
         value = 0
         for us_position in our_positions.keys():
             nb_us = our_positions[us_position]
-            distance_oppo_us = distance_nb_coups(oppo_position, us_position)
+            distance_oppo_us = distance_nb_moves(oppo_position, us_position)
             if nb_oppo >= 1.5 * nb_us:
                 value += w_adv / (distance_oppo_us * (1.51 - nb_us / nb_oppo))
             else:
@@ -65,7 +65,7 @@ def absolute_heuristic(state: ndarray, species_played: str):
                 value += probability_of_win * w_adv / distance_oppo_us
         for human_position in humans_positions.keys():
             nb_human = humans_positions[human_position]
-            distance_oppo_human = distance_nb_coups(oppo_position, human_position)
+            distance_oppo_human = distance_nb_moves(oppo_position, human_position)
             if nb_oppo >= nb_human:
                 value += w_hum / (distance_oppo_human * (1.01 - nb_human / nb_oppo))
             else:

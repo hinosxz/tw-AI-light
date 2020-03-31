@@ -1,8 +1,4 @@
-from typing import List, Tuple
-
-
-def manhattan_dist(pos_1: Tuple[int, int], pos_2: Tuple[int, int]):
-    return ((pos_1[0] - pos_2[0]) ** 2 + (pos_1[1] - pos_2[1]) ** 2) ** 0.5
+from typing import Tuple
 
 
 def sign_integer(value: int):
@@ -14,18 +10,7 @@ def sign_integer(value: int):
         return 0
 
 
-def flatten(array: Tuple[List[Tuple[int, int, int, int, int]]]):
-    """
-    Flattens move tuple a single level deep
-    """
-    flat_list = []
-    for sublist in array:
-        for item in sublist:
-            flat_list.append(item)
-    return flat_list
-
-
-def distance_nb_coups(pos_1: Tuple[int, int], pos_2: Tuple[int, int]):
+def distance_nb_moves(pos_1: Tuple[int, int], pos_2: Tuple[int, int]):
     # We calculate the number of moves to do in diagonal
     x_init, y_init = pos_1
     x_final, y_final = pos_2

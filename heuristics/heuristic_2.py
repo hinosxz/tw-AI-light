@@ -1,7 +1,7 @@
 from numpy import ndarray
 from typing import Tuple, Dict
 
-from lib.util import distance_nb_coups
+from lib.util import distance_nb_moves
 from lib.positions import get_human_positions, get_our_positions, get_opponent_positions
 from lib.constants import (
     WINNING_WEIGHT,
@@ -18,12 +18,12 @@ def compute_human_impact(
     human_position: Tuple[int, int],
 ):
     local_human_score = 0
-    distance = distance_nb_coups(our_position, human_position)
+    distance = distance_nb_moves(our_position, human_position)
     if human_size <= our_size:
         local_human_score += (HUMAN_WIN_WEIGHT * human_size / distance) ** 2
     return local_human_score
-  
-  
+
+
 def human_impact(
     our_positions: Dict[Tuple[int, int], int],
     humans_positions: Dict[Tuple[int, int], int],
@@ -56,7 +56,7 @@ def compute_opponent_impact(
     our_position: Tuple[int, int],
     opponent_position: Tuple[int, int],
 ):
-    distance = distance_nb_coups(our_position, opponent_position)
+    distance = distance_nb_moves(our_position, opponent_position)
     if our_size >= 1.5 * opponent_size:
         local_opponent_score = (ABSOLUTE_WIN_WEIGHT * our_size / distance) ** 2
     elif opponent_size >= 1.5 * our_size:
@@ -99,6 +99,7 @@ def heuristic_2(state: ndarray, species_played: str):
 
 if __name__ == "__main__":
     from lib.alpha_beta import example
+
     # For testing purposes
     score = heuristic_2(state=example, species_played="vampire")
     print(score)
