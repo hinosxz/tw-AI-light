@@ -3,13 +3,14 @@ from typing import Tuple, Dict
 
 from lib.util import distance_nb_coups
 from lib.positions import get_human_positions, get_our_positions, get_opponent_positions
+from lib.alpha_beta import example
 
 
 def human_impact(
     our_positions: Dict[Tuple[int, int], int],
     humans_positions: Dict[Tuple[int, int], int],
     opponent_positions: Dict[Tuple[int, int], int],
-    human_win_weight: int,
+    human_win_weight: float,
 ):
     human_impact_score = 0
     for human_position, human_size in humans_positions.items():
@@ -35,8 +36,8 @@ def human_impact(
 def population_impact(
     total_players: int,
     total_opponents: int,
-    population_weight: int,
-    winning_weight: int,
+    population_weight: float,
+    winning_weight: float,
 ):
     if total_players == 0:
         return -winning_weight * total_opponents
@@ -49,8 +50,7 @@ def population_impact(
 def opponent_impact(
     our_positions: Dict[Tuple[int, int], int],
     opponent_positions: Dict[Tuple[int, int], int],
-    absolute_win_weight: int,
-    random_fight_weight: int,
+    absolute_win_weight: float,
 ):
     opponent_impact_score = 0
     for our_position, our_size in our_positions.items():
@@ -79,7 +79,6 @@ def heuristic_2(
     species_played: str,
     population_weight: float,
     absolute_win_weight: float,
-    random_fight_weight: float,
     human_win_weight: float,
     winning_weight: float,
 ):
@@ -94,9 +93,7 @@ def heuristic_2(
         population_impact(
             total_players, total_opponents, population_weight, winning_weight
         )
-        + opponent_impact(
-            our_positions, opponent_positions, absolute_win_weight, random_fight_weight
-        )
+        + opponent_impact(our_positions, opponent_positions, absolute_win_weight)
         + human_impact(
             our_positions, humans_positions, opponent_positions, human_win_weight
         )
@@ -105,14 +102,12 @@ def heuristic_2(
 
 
 if __name__ == "__main__":
-    from lib.alpha_beta import example
-
+    # For testing purposes
     score = heuristic_2(
         state=example,
         species_played="vampire",
         population_weight=1000000,
         absolute_win_weight=1000,
-        random_fight_weight=1000,
         human_win_weight=1000,
         winning_weight=1000000000,
     )

@@ -6,8 +6,7 @@ from time import time
 from treelib import Tree
 from uuid import uuid4
 
-from heuristics.absolute_heuristic import absolute_heuristic
-from heuristics.heuristic_2 import heuristic_2
+from heuristics import HEURISTICS
 from lib.constants import TYPE_TO_POSITION_INDEX, TYPE_TO_OPPONENT_POSITION_INDEX
 from lib.positions import get_positions, get_our_positions, get_opponent_positions
 from lib.TimeoutException import TimeoutException
@@ -32,18 +31,8 @@ def timeout_test(start_time: float):
 
 
 def evaluate(state: ndarray, game_type: str, heuristic_played: str):
-    if heuristic_played == "absolute":
-        return absolute_heuristic(state, game_type)
-    else:
-        return heuristic_2(
-            state=state,
-            species_played=game_type,
-            population_weight=10,
-            absolute_win_weight=1,
-            random_fight_weight=1,
-            human_win_weight=100,
-            winning_weight=100000,
-        )
+    heuristic = HEURISTICS[heuristic_played]
+    return heuristic(state, game_type)
 
 
 def get_our_size(state: ndarray, species_played: str):
@@ -104,6 +93,13 @@ def get_successors(state: ndarray, species: int):
 
 
 def check_conflict(current_cell: ndarray, player_index: int):
+    """
+    This function will make sure we don't engage in random battles and only simulate a potential win if we are
+    actually able to win the fight for sure
+    :param current_cell:
+    :param player_index:
+    :return: The cell after battle
+    """
     cell = copy(current_cell)
     nb_humans = cell[0]
     nb_player = cell[player_index]
