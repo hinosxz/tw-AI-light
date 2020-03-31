@@ -15,6 +15,8 @@ from lib.TimeoutException import TimeoutException
 MAX_RESPONSE_TIME = 1.9
 OPPONENTS = {"vampire": "wolf", "wolf": "vampire"}
 
+HEURISTIC_DICT = {"absolute": absolute_heuristic, "heuristic2": heuristic_2}
+
 
 def game_is_over(state: ndarray):
     vampires = get_positions(state, 1).keys()
@@ -32,18 +34,7 @@ def timeout_test(start_time: float):
 
 
 def evaluate(state: ndarray, game_type: str, heuristic_played: str):
-    if heuristic_played == "absolute":
-        return absolute_heuristic(state, game_type)
-    else:
-        return heuristic_2(
-            state=state,
-            species_played=game_type,
-            population_weight=10,
-            absolute_win_weight=1,
-            random_fight_weight=1,
-            human_win_weight=100,
-            winning_weight=100000,
-        )
+    return HEURISTIC_DICT[heuristic_played](state=state, species_played=game_type)
 
 
 def get_our_size(state: ndarray, species_played: str):
