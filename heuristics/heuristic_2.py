@@ -77,10 +77,10 @@ def opponent_impact(
 def heuristic_2(
     state: ndarray,
     species_played: str,
-    population_weight: float,
-    absolute_win_weight: float,
-    human_win_weight: float,
-    winning_weight: float,
+    population_weight: float = 10,
+    absolute_win_weight: float = 1,
+    human_win_weight: float = 100,
+    winning_weight: float = 100000,
 ):
     humans_positions, our_positions, opponent_positions = (
         get_human_positions(state),
@@ -103,13 +103,6 @@ def heuristic_2(
 
 if __name__ == "__main__":
     # For testing purposes
-    score = heuristic_2(
-        state=example,
-        species_played="vampire",
-        population_weight=1000000,
-        absolute_win_weight=1000,
-        human_win_weight=1000,
-        winning_weight=1000000000,
-    )
+    score = heuristic_2(state=example, species_played="vampire")
 
     print(score)
