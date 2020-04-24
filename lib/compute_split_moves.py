@@ -59,10 +59,10 @@ def compute_all_possible_moves(
             product(*possible_moves_per_group)
         )
         return possible_moves
-
+# HACK We need to compute moves for one group max to avoid timeouts
+    biggest_group_position, biggest_size = sorted(groups.items(), key=lambda kv: kv[1], reverse=True)[0]
     possible_moves_per_group = [
-        compute_all_possible_moves_for_one_group(size, group_position, shape)
-        for group_position, size in groups.items()
+        compute_all_possible_moves_for_one_group(biggest_size, biggest_group_position, shape)
     ]
 
     possible_moves: List[Tuple[Tuple[int, int, int, int, int], ...]] = list(
