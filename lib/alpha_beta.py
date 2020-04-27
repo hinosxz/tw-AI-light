@@ -1,5 +1,6 @@
 from numpy import inf as infinity, ndarray, array, copy, array_equal
 from numpy.random import binomial
+from random import choice
 from typing import Tuple, List
 from time import time
 from treelib import Tree
@@ -7,9 +8,10 @@ from uuid import uuid4
 
 from heuristics import HEURISTICS
 from lib.constants import TYPE_TO_POSITION_INDEX, TYPE_TO_OPPONENT_POSITION_INDEX
-from lib.positions import get_positions, get_our_size, get_opponent_size
+from lib.positions import get_positions, get_our_size, get_opponent_size, get_our_positions
 from lib.TimeoutException import TimeoutException
 from lib.compute_split_moves import compute_all_possible_moves
+from lib.util import get_neighbors
 
 MAX_RESPONSE_TIME = 1.9
 OPPONENTS = {"vampire": "wolf", "wolf": "vampire"}
@@ -242,6 +244,21 @@ def alphabeta_search(
     except TimeoutException as exception:
         print("// Timeout exception raised: returned the best move known at the moment")
         move_iterator = exception.moves
+
+    if len(move_iterator) == 0:
+        positions = get_our_positions(state, species_played)
+        biggest_group_position, biggest_size = sorted(positions.items(), key=lambda kv: kv[1], reverse=True)[0]
+        neighbors_positions = get_neighbors(biggest_group_position, state.shape, False)
+        next_random_position = choice(neighbors_positions)
+        move_iterator = [
+            (
+                biggest_group_position[0],
+                biggest_group_position[1],
+                biggest_size,
+                next_random_position[0],
+                next_random_position[1]
+            )
+        ]
 
     for x_origin, y_origin, size, x_target, y_target in move_iterator:
         chosen_moves.append(
