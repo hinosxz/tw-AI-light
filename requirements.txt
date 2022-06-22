@@ -1,4 +1,4 @@
 pre-commit==2.0.1
-numpy==1.18.1
+numpy==1.22.0
 treelib==1.6.1
 pytest
